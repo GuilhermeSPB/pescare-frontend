@@ -43,6 +43,21 @@ export default tseslint.config(
               except: ['./fishing-methods'],
             },
             {
+              target: './src/features/target-groups',
+              from: './src/features',
+              except: ['./target-groups'],
+            },
+            {
+              target: './src/features/fishing-location-types',
+              from: './src/features',
+              except: ['./fishing-location-types'],
+            },
+            {
+              target: './src/features/buyer-types',
+              from: './src/features',
+              except: ['./buyer-types'],
+            },
+            {
               target: './src/features/fishing-bans',
               from: './src/features',
               except: ['./fishing-bans'],

@@ -1,0 +1,238 @@
+/* Ordem das camadas: o PrimeReact fica acima do reset do Tailwind (base) e abaixo das
+   utilidades, para que classes do Tailwind ajustem componentes PrimeReact.
+   O tema e os estilos que o PrimeReact injeta em tempo de execução já se declaram em
+   `@layer primereact`; por isso o tema é importado sem `layer()` (senão vira subcamada). */
+@layer theme, base, primeicons, primereact, components, utilities;
+
+@import 'tailwindcss';
+@import 'primereact/resources/themes/lara-light-blue/theme.css';
+@import 'primeicons/primeicons.css' layer(primeicons);
+
+/* Raiz em 14px, como o Sakai: o tema Lara é todo em rem e fica na densidade de painel.
+   Espaçamento e escala de texto recalculados para cair em px inteiros (grade de 4px). */
+@theme {
+  --font-sans: 'Inter var', ui-sans-serif, system-ui, sans-serif;
+  --spacing: 0.2857143rem;
+
+  --text-xs: 0.8571429rem;
+  --text-xs--line-height: 1.3333;
+  --text-sm: 0.9285714rem;
+  --text-sm--line-height: 1.3846;
+  --text-base: 1rem;
+  --text-base--line-height: 1.4286;
+  --text-lg: 1.1428571rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.2857143rem;
+  --text-xl--line-height: 1.3333;
+  --text-2xl: 1.7142857rem;
+  --text-2xl--line-height: 1.25;
+  /* Só para o título do login, a única tela de boas-vindas do painel. */
+  --text-3xl: 2.1428571rem;
+  --text-3xl--line-height: 1.2;
+
+  /* 6px, o mesmo raio do Lara (--border-radius); o padrão do Tailwind daria 5,25px na raiz de 14px. */
+  --radius-md: 0.4285714rem;
+
+  --color-ground: #f9fafb;
+  --color-line: #dfe7ef;
+  --color-ink: #111827;
+  --color-ink-muted: #4b5563;
+  --color-ink-soft: #6b7280;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #eff6ff;
+  --color-primary-ink: #1d4ed8;
+  --color-primary-active: #1e40af;
+  --color-success: #15803d;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-line: #fecaca;
+}
+
+@layer base {
+  html {
+    font-size: 14px;
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--color-ground);
+    color: var(--color-ink-muted);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: #bfdbfe;
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  input,
+  textarea {
+    caret-color: var(--color-primary);
+  }
+
+  * {
+    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: thin;
+  }
+}
+
+/* Ajustes no Lara. Ficam na mesma camada do tema para respeitar a especificidade
+   das variantes (text, outlined, severity) em vez de passar por cima de todas. */
+@layer primereact {
+  /* O azul do Lara (#3b82f6) com texto branco fica em 3,7:1, abaixo do AA (4,5:1).
+     A rampa desce um passo só onde há texto sobre ou em azul. */
+  .p-button {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .p-button:not(:disabled):hover {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+  }
+
+  .p-button:not(:disabled):active {
+    background: var(--color-primary-active);
+    border-color: var(--color-primary-active);
+  }
+
+  .p-button.p-button-outlined,
+  .p-button.p-button-text {
+    color: var(--color-primary);
+  }
+
+  .p-button.p-button-outlined:not(:disabled):hover,
+  .p-button.p-button-text:not(:disabled):hover {
+    color: var(--color-primary-hover);
+    background: rgb(37 99 235 / 0.06);
+  }
+
+  .p-selectbutton .p-button.p-highlight {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .p-selectbutton .p-button.p-highlight:hover {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+  }
+
+  /* Ícones dentro de campos (olho da senha, lupa da busca): o span herdava a altura de linha
+     do texto (21px), mas o Lara centraliza com margin-top de -0.5rem, pensando num ícone de
+     1rem. O ícone ficava ~4px abaixo do centro do campo. */
+  .p-icon-field > .p-input-icon {
+    display: flex;
+    align-items: center;
+    height: 1rem;
+    line-height: 1;
+  }
+
+  /* Abas: ficam sobre o fundo da página (o Lara as põe numa caixa branca), com a aba ativa
+     no azul que passa no AA (#3b82f6 do Lara fica em 3,7:1). O painel não tem caixa:
+     o conteúdo da aba (ex.: cartões) traz as próprias bordas. */
+  .p-tabview .p-tabview-nav,
+  .p-tabview .p-tabview-nav li .p-tabview-nav-link,
+  .p-tabview .p-tabview-nav li:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link,
+  .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link,
+  .p-tabview .p-tabview-panels {
+    background: transparent;
+  }
+
+  .p-tabview .p-tabview-nav {
+    border-color: var(--color-line);
+  }
+
+  .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    gap: 0.5714286rem;
+    padding: 0.8571429rem 1.1428571rem;
+    font-weight: 600;
+  }
+
+  .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .p-tabview .p-tabview-panels {
+    padding: 1.7142857rem 0 0;
+  }
+
+  /* No celular, menos recuo lateral para as abas caberem sem rolagem escondida. */
+  @media (max-width: 39.99rem) {
+    .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+      padding-inline: 0.8571429rem;
+    }
+  }
+
+  /* Erro de formulário do Lara (#e24c4c) fica em 3,9:1 sobre branco. */
+  .p-error {
+    color: var(--color-danger);
+  }
+
+  /* Toasts do Lara: texto colorido em fundo translúcido (abaixo do AA) e faixa lateral de 6px.
+     Aqui viram cartão branco com borda fina; a cor fica só no ícone. */
+  .p-toast .p-toast-message.p-toast-message-success,
+  .p-toast .p-toast-message.p-toast-message-error,
+  .p-toast .p-toast-message.p-toast-message-info,
+  .p-toast .p-toast-message.p-toast-message-warn {
+    background: #ffffff;
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+    box-shadow:
+      0 12px 24px -12px rgb(15 23 42 / 0.25),
+      0 2px 6px rgb(15 23 42 / 0.06);
+    backdrop-filter: none;
+  }
+
+  .p-toast .p-toast-message .p-toast-message-content .p-toast-message-icon {
+    font-size: var(--text-xl);
+  }
+
+  .p-toast .p-toast-message .p-toast-message-content .p-toast-message-icon.p-icon {
+    width: var(--text-xl);
+    height: var(--text-xl);
+  }
+
+  .p-toast .p-toast-message .p-toast-message-content .p-toast-detail {
+    margin-top: 0.25rem;
+    color: var(--color-ink-muted);
+  }
+
+  .p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon {
+    color: var(--color-success);
+  }
+
+  .p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon {
+    color: var(--color-danger);
+  }
+
+  .p-toast .p-toast-message.p-toast-message-success .p-toast-icon-close,
+  .p-toast .p-toast-message.p-toast-message-error .p-toast-icon-close {
+    color: var(--color-ink-soft);
+  }
+
+  .p-toast .p-toast-message .p-toast-icon-close:hover {
+    background: #f3f4f6;
+  }
+
+  /* Linhas mais baixas que o padrão do Lara (lista de consulta rápida) e recuo lateral
+     de 16px, o mesmo da barra de busca acima da tabela. */
+  .p-datatable .p-datatable-thead > tr > th {
+    padding: 0.8571429rem 1.1428571rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    background: #f9fafb;
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5714286rem 1.1428571rem;
+  }
+}

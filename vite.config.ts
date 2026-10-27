@@ -12,5 +12,10 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    watch: {
+      // Artefatos de design (Impeccable) são gravados em .impeccable/ durante as sessões;
+      // sem isto, cada gravação recarrega a página do painel.
+      ignored: ['**/.impeccable/**'],
+    },
   },
 })
