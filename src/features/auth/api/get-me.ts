@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api-client'
 
-import type { AuthUser } from '@/features/auth/types/auth'
+import type { User } from '@/types/user'
 
 /**
  * Busca o usuário da sessão atual (GET /users/me).
@@ -10,8 +10,8 @@ import type { AuthUser } from '@/features/auth/types/auth'
  * @example
  * const currentUser = await getMe()
  */
-export const getMe = (): Promise<AuthUser> =>
-  api.get<AuthUser>('/users/me').then((response) => response.data)
+export const getMe = (): Promise<User> =>
+  api.get<User>('/users/me').then((response) => response.data)
 
 /**
  * Query options do usuário da sessão.

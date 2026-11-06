@@ -63,6 +63,11 @@ export default tseslint.config(
               except: ['./fishing-bans'],
             },
             {
+              target: './src/features/municipalities',
+              from: './src/features',
+              except: ['./municipalities'],
+            },
+            {
               target: './src/features/location-fishings',
               from: './src/features',
               except: ['./location-fishings'],

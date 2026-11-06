@@ -1,4 +1,4 @@
-import type { UserRole } from '@/features/auth/types/auth'
+import type { UserRole } from '@/types/user'
 
 const ROLE_LABELS: Record<UserRole, string> = {
   ADMIN: 'Administrador',

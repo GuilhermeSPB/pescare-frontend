@@ -7,7 +7,8 @@ export interface CatalogEmptyStateCopy {
   noMatchDescription: string
   emptyTitle: string
   emptyDescription: string
-  createLabel: string
+  // Sem rótulo e sem `onCreateClick`, o catálogo vazio não oferece cadastro (ex.: municípios).
+  createLabel?: string
 }
 
 interface CatalogEmptyStateProps {
@@ -15,7 +16,7 @@ interface CatalogEmptyStateProps {
   hasActiveFilter: boolean
   copy: CatalogEmptyStateCopy
   onClearFilters: () => void
-  onCreateClick: () => void
+  onCreateClick?: () => void
 }
 
 export function CatalogEmptyState({
@@ -41,7 +42,10 @@ export function CatalogEmptyState({
       title={copy.emptyTitle}
       description={copy.emptyDescription}
       action={
-        <Button label={copy.createLabel} icon="pi pi-plus" size="small" onClick={onCreateClick} />
+        copy.createLabel &&
+        onCreateClick && (
+          <Button label={copy.createLabel} icon="pi pi-plus" size="small" onClick={onCreateClick} />
+        )
       }
     />
   )

@@ -1,8 +1,9 @@
-import { IconField } from 'primereact/iconfield'
-import { InputIcon } from 'primereact/inputicon'
-import { InputText } from 'primereact/inputtext'
-import { SelectButton, type SelectButtonChangeEvent } from 'primereact/selectbutton'
+import type { ReactNode } from 'react'
 
+import type { ActiveStatusLabels } from '@/components/active-status-tag'
+import { CatalogSearchField } from '@/components/catalog-search-field'
+import { FilterToolbar } from '@/components/filter-toolbar'
+import { StatusFilter, type StatusFilterOption } from '@/components/status-filter'
 import type { ActiveStatusCounts, ActiveStatusFilter } from '@/types/catalog'
 
 interface CatalogToolbarProps {
@@ -12,17 +13,23 @@ interface CatalogToolbarProps {
   statusFilter: ActiveStatusFilter
   // Sem contagens (lista carregando ou com erro), o filtro mostra só os rótulos e fica bloqueado.
   counts?: ActiveStatusCounts
+  // Rótulos de outra situação de dois estados.
+  statusLabels?: ActiveStatusLabels
+  // Filtro próprio do catálogo, antes do status: ex.: o perfil na lista de usuários.
+  extraFilter?: ReactNode
   onSearchTermChange: (searchTerm: string) => void
   onStatusFilterChange: (statusFilter: ActiveStatusFilter) => void
 }
 
-const withCount = (label: string, count?: number) =>
-  count === undefined ? label : `${label} (${count})`
+const DEFAULT_STATUS_LABELS: ActiveStatusLabels = { active: 'Ativos', inactive: 'Inativos' }
 
-const buildStatusOptions = (counts?: ActiveStatusCounts) => [
-  { label: withCount('Todos', counts?.all), value: 'all' },
-  { label: withCount('Ativos', counts?.active), value: 'active' },
-  { label: withCount('Inativos', counts?.inactive), value: 'inactive' },
+const buildStatusOptions = (
+  statusLabels: ActiveStatusLabels,
+  counts?: ActiveStatusCounts,
+): StatusFilterOption<ActiveStatusFilter>[] => [
+  { value: 'all', label: 'Todos', count: counts?.all },
+  { value: 'active', label: statusLabels.active, count: counts?.active },
+  { value: 'inactive', label: statusLabels.inactive, count: counts?.inactive },
 ]
 
 export function CatalogToolbar({
@@ -30,38 +37,34 @@ export function CatalogToolbar({
   searchLabel,
   statusFilter,
   counts,
+  statusLabels = DEFAULT_STATUS_LABELS,
+  extraFilter,
   onSearchTermChange,
   onStatusFilterChange,
 }: CatalogToolbarProps) {
   const isDisabled = counts === undefined
 
-  const handleStatusChange = (event: SelectButtonChangeEvent) => {
-    onStatusFilterChange(event.value as ActiveStatusFilter)
-  }
-
   return (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <IconField iconPosition="left" className="w-full md:max-w-80">
-        <InputIcon className="pi pi-search" />
-        <InputText
-          type="search"
-          value={searchTerm}
-          onChange={(event) => onSearchTermChange(event.target.value)}
-          placeholder="Pesquisar"
-          aria-label={searchLabel}
-          disabled={isDisabled}
-          className="w-full"
+    <FilterToolbar
+      search={
+        <CatalogSearchField
+          searchTerm={searchTerm}
+          searchLabel={searchLabel}
+          isDisabled={isDisabled}
+          onSearchTermChange={onSearchTermChange}
         />
-      </IconField>
-      <SelectButton
-        value={statusFilter}
-        options={buildStatusOptions(counts)}
-        onChange={handleStatusChange}
-        allowEmpty={false}
-        disabled={isDisabled}
-        aria-label="Filtrar por status"
-        className="flex tabular-nums max-md:w-full max-md:[&>.p-button]:flex-1 max-md:[&>.p-button]:justify-center max-md:[&>.p-button]:px-2"
-      />
-    </div>
+      }
+      filters={
+        <>
+          {extraFilter}
+          <StatusFilter
+            value={statusFilter}
+            options={buildStatusOptions(statusLabels, counts)}
+            isDisabled={isDisabled}
+            onChange={onStatusFilterChange}
+          />
+        </>
+      }
+    />
   )
 }

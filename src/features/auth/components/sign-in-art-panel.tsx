@@ -1,4 +1,4 @@
-import fishingIllustrationUrl from '@/assets/fishing-illustration.png'
+import fishingIllustrationUrl from '@/assets/fishing-illustration-porthole.png'
 
 // Ondas decorativas no pé do painel, em branco translúcido sobre o azul.
 function PanelWaves() {
@@ -22,14 +22,17 @@ function PanelWaves() {
 }
 
 // Painel da tela de login: a ilustração dentro de um círculo branco, como a janela
-// redonda de um barco. O PNG tem fundo branco, que vira o próprio círculo, e o recorte
-// redondo esconde as linhas soltas nas bordas da cena. Puramente decorativo.
+// redonda de um barco. O recorte redondo esconde as linhas soltas nas bordas da cena.
+// O PNG é a ilustração original completada até um quadrado com o próprio branco, para
+// cobrir o círculo inteiro: com o fundo branco só no CSS, o modo escuro forçado de alguns
+// navegadores escurecia o fundo e deixava faixas pretas acima e abaixo da cena.
+// Puramente decorativo.
 export function SignInArtPanel() {
   return (
     <div className="relative flex h-full items-center justify-center overflow-hidden rounded-md bg-primary">
       <PanelWaves />
-      <div className="relative grid aspect-square w-[min(76%,42rem)] place-items-center overflow-hidden rounded-full bg-white shadow-[0_24px_48px_-24px_rgb(15_23_42/0.45)] ring-[14px] ring-white/15">
-        <img src={fishingIllustrationUrl} alt="" aria-hidden="true" className="w-full" />
+      <div className="relative aspect-square w-[min(76%,42rem)] overflow-hidden rounded-full bg-white shadow-[0_24px_48px_-24px_rgb(15_23_42/0.45)] ring-[14px] ring-white/15">
+        <img src={fishingIllustrationUrl} alt="" aria-hidden="true" className="size-full" />
       </div>
     </div>
   )

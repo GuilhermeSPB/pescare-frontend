@@ -45,9 +45,10 @@ export const moduleNavGroups: NavGroup[] = [
     icon: 'pi pi-megaphone',
     items: [
       {
-        label: 'Defesos',
+        label: 'Períodos de defeso',
         icon: 'pi pi-calendar-times',
-        description: 'Cadastre normas de defeso com períodos, espécies, municípios e locais.',
+        description: 'Cadastre os períodos de defeso com espécies, municípios e tipos de local.',
+        to: paths.fishingBanPeriods,
       },
       {
         label: 'Alertas',
@@ -63,12 +64,14 @@ export const moduleNavGroups: NavGroup[] = [
       {
         label: 'Usuários',
         icon: 'pi pi-users',
-        description: 'Cadastre, ative e desative pescadores e administradores.',
+        description: 'Veja os usuários, cadastre administradores e desative acessos.',
+        to: paths.users,
       },
       {
         label: 'Municípios',
         icon: 'pi pi-building',
-        description: 'Consulte os municípios pelo código do IBGE.',
+        description: 'Consulte os municípios do IBGE e corrija o nome.',
+        to: paths.municipalities,
       },
     ],
   },

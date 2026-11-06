@@ -8,11 +8,11 @@ import type {
 import { api } from '@/lib/api-client'
 
 /**
- * Cadastra um tipo de local de pesca (POST /fishing-location-types). Nasce ativo.
+ * Cadastra um tipo de local de pesca com o ambiente (POST /fishing-location-types). Nasce ativo.
  * Nome repetido responde 409.
  *
  * @example
- * await createFishingLocationType({ name: 'Rio' })
+ * await createFishingLocationType({ name: 'Rio', environment: 'CONTINENTAL' })
  */
 export const createFishingLocationType = (
   input: CreateFishingLocationTypeInput,
@@ -24,7 +24,7 @@ export const createFishingLocationType = (
  *
  * @example
  * const createMutation = useCreateFishingLocationType()
- * createMutation.mutate({ name: 'Lago' })
+ * createMutation.mutate({ name: 'Lago', environment: 'CONTINENTAL' })
  */
 export const useCreateFishingLocationType = () => {
   const queryClient = useQueryClient()

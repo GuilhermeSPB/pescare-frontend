@@ -1,7 +1,12 @@
 import type { ActiveCatalogItem, ActiveStatusCounts, ActiveStatusFilter } from '@/types/catalog'
 
-// Busca sem acento e sem caixa: "puca" encontra "Puçá".
-const normalizeForSearch = (text: string): string =>
+/**
+ * Texto pronto para busca sem acento e sem caixa: "puca" encontra "Puçá".
+ *
+ * @example
+ * normalizeForSearch('  Puçá ') // 'puca'
+ */
+export const normalizeForSearch = (text: string): string =>
   text
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')

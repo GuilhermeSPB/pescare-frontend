@@ -1,6 +1,7 @@
 import { useId } from 'react'
 import { NavLink } from 'react-router'
 
+import { paths } from '@/config/paths'
 import type { NavGroup, NavItem } from '@/types/navigation'
 
 interface SidebarNavProps {
@@ -30,10 +31,11 @@ function SidebarNavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () =
   }
 
   return (
-    // `end`: "Início" (/) só fica marcado na própria página inicial, não em todas as rotas.
+    // `end` só no "Início" (/), que senão ficaria marcado em todas as rotas. Nos demais, as
+    // subpáginas (ex.: editar um período de defeso) mantêm o item da seção marcado.
     <NavLink
       to={item.to}
-      end
+      end={item.to === paths.home}
       onClick={onNavigate}
       className={({ isActive }) =>
         isActive

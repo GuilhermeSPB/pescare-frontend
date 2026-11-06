@@ -10,6 +10,8 @@ import { getCatalogPaginatorProps } from '@/utils/catalog-paginator'
 
 // Larguras no cabeçalho e no corpo: sem linhas (lista vazia), o cabeçalho não muda de lugar.
 // No celular a situação vai para baixo do nome e a coluna some, para o nome caber numa linha.
+// A coluna extra some antes, como o grupo-alvo nas espécies.
+const EXTRA_COLUMN_CLASS = 'w-40 max-md:hidden'
 const STATUS_COLUMN_CLASS = 'w-36 max-sm:hidden'
 const ACTIONS_COLUMN_CLASS = 'w-28'
 
@@ -24,25 +26,34 @@ const SKELETON_ROWS: NamedCatalogItem[] = SKELETON_NAME_WIDTHS.map((_, index) =>
 
 const getSkeletonNameWidth = (item: NamedCatalogItem) => SKELETON_NAME_WIDTHS[-item.id - 1]
 
-interface NamedCatalogTableProps {
-  items: NamedCatalogItem[]
-  isLoading: boolean
-  emptyState: ReactNode
-  // Linha cuja ativação/desativação está em andamento (mostra o botão carregando).
-  togglingItemId?: number
-  onEditClick: (item: NamedCatalogItem) => void
-  onToggleActiveClick: (item: NamedCatalogItem) => void
+// Um dado a mais entre o nome e a situação, para o catálogo que tem algo além do nome
+// (ex.: o ambiente do tipo de local).
+export interface NamedCatalogExtraColumn<TItem extends NamedCatalogItem> {
+  header: string
+  render: (item: TItem) => ReactNode
 }
 
-export function NamedCatalogTable({
+interface NamedCatalogTableProps<TItem extends NamedCatalogItem> {
+  items: TItem[]
+  isLoading: boolean
+  emptyState: ReactNode
+  extraColumn?: NamedCatalogExtraColumn<TItem>
+  // Linha cuja ativação/desativação está em andamento (mostra o botão carregando).
+  togglingItemId?: number
+  onEditClick: (item: TItem) => void
+  onToggleActiveClick: (item: TItem) => void
+}
+
+export function NamedCatalogTable<TItem extends NamedCatalogItem>({
   items,
   isLoading,
   emptyState,
+  extraColumn,
   togglingItemId,
   onEditClick,
   onToggleActiveClick,
-}: NamedCatalogTableProps) {
-  const renderName = (item: NamedCatalogItem) => {
+}: NamedCatalogTableProps<TItem>) {
+  const renderName = (item: TItem) => {
     if (isLoading) return <Skeleton width={getSkeletonNameWidth(item)} />
 
     return (
@@ -55,14 +66,18 @@ export function NamedCatalogTable({
     )
   }
 
-  const renderStatus = (item: NamedCatalogItem) =>
+  // As linhas do esqueleto não têm os campos extras: o template só lê o item depois de carregar.
+  const renderExtra = (item: TItem) =>
+    isLoading ? <Skeleton width="6rem" /> : extraColumn?.render(item)
+
+  const renderStatus = (item: TItem) =>
     isLoading ? (
       <Skeleton width="4.5rem" height="1.5rem" />
     ) : (
       <ActiveStatusTag isActive={item.is_active} />
     )
 
-  const renderActions = (item: NamedCatalogItem) =>
+  const renderActions = (item: TItem) =>
     isLoading ? (
       <Skeleton width="4.5rem" className="mx-auto" />
     ) : (
@@ -85,8 +100,19 @@ export function NamedCatalogTable({
       {...getCatalogPaginatorProps(items.length, isLoading)}
       aria-busy={isLoading}
       tableStyle={{ minWidth: '18rem' }}
+      // O DataTable memoiza as células pelo `rowData`: sem isto, o botão carregando da linha
+      // em ativação (dado de fora da linha) não chega ao template.
+      cellMemo={false}
     >
       <Column field="name" header="Nome" sortable={!isLoading} body={renderName} />
+      {extraColumn && (
+        <Column
+          header={extraColumn.header}
+          body={renderExtra}
+          headerClassName={EXTRA_COLUMN_CLASS}
+          bodyClassName={EXTRA_COLUMN_CLASS}
+        />
+      )}
       <Column
         field="is_active"
         header="Status"

@@ -1,9 +1,7 @@
 import type { NamedCatalogItem } from '@/types/named-catalog'
+import { buildCatalogOptions, type CatalogOption } from '@/utils/catalog-options'
 
-export interface TargetGroupOption {
-  label: string
-  value: number
-}
+export type TargetGroupOption = CatalogOption
 
 /**
  * Índice id → nome dos grupos-alvo, para a tabela mostrar o grupo de cada espécie
@@ -28,10 +26,8 @@ export const getTargetGroupOptions = (
   targetGroups: NamedCatalogItem[],
   currentGroupId?: number,
 ): TargetGroupOption[] =>
-  targetGroups
-    .filter((group) => group.is_active || group.id === currentGroupId)
-    .map((group) => ({
-      value: group.id,
-      label: group.is_active ? group.name : `${group.name} (inativo)`,
-    }))
-    .sort((first, second) => first.label.localeCompare(second.label, 'pt-BR'))
+  buildCatalogOptions(targetGroups, {
+    keptIds: currentGroupId === undefined ? [] : [currentGroupId],
+    getLabel: (group) => group.name,
+    inactiveSuffix: '(inativo)',
+  })

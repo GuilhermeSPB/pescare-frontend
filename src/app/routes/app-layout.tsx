@@ -1,7 +1,7 @@
 import { ConfirmDialog } from 'primereact/confirmdialog'
 import { Sidebar } from 'primereact/sidebar'
 import { useState } from 'react'
-import { Navigate, Outlet, useLocation, useMatches } from 'react-router'
+import { Navigate, Outlet, useLocation, useMatches, useNavigate } from 'react-router'
 
 import { sidebarNavGroups } from '@/app/nav-groups'
 import { getRouteBreadcrumb } from '@/app/route-handle'
@@ -11,13 +11,14 @@ import { TopBar } from '@/components/top-bar'
 import { paths } from '@/config/paths'
 import { useMe } from '@/features/auth/api/get-me'
 import { useSignOut } from '@/features/auth/hooks/use-sign-out'
-import { getRoleLabel } from '@/features/auth/utils/get-role-label'
 import { getAuthToken } from '@/lib/auth-token'
+import { getRoleLabel } from '@/utils/get-role-label'
 
 function AppShell() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const meQuery = useMe()
   const signOut = useSignOut()
+  const navigate = useNavigate()
   const breadcrumb = getRouteBreadcrumb(useMatches())
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
@@ -52,6 +53,7 @@ function AppShell() {
           userName={meQuery.data?.name}
           userCaption={meQuery.data ? getRoleLabel(meQuery.data.role) : ''}
           onMenuClick={() => setIsMobileMenuOpen(true)}
+          onProfileClick={() => navigate(paths.profile)}
           onSignOutClick={signOut}
         />
         {/* Mesmo recuo lateral da barra do topo: o título alinha com o caminho acima dele. */}

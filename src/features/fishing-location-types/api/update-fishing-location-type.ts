@@ -8,7 +8,7 @@ import type {
 import { api } from '@/lib/api-client'
 
 /**
- * Altera nome e/ou situação de um tipo de local de pesca (PUT /fishing-location-types/:id).
+ * Altera nome, ambiente e/ou situação de um tipo de local de pesca (PUT /fishing-location-types/:id).
  * Desativar é a única forma de tirar um tipo do app: a API não apaga.
  *
  * @example

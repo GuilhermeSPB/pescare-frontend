@@ -1,19 +1,4 @@
-export type UserRole = 'ADMIN' | 'FISHER'
-
-// Resposta de GET /users/me (o backend nunca devolve a senha).
-export interface AuthUser {
-  id: number
-  name: string
-  email: string
-  registration_date: string
-  role: UserRole
-  is_active: boolean
-  fk_municipality_ibge_code: string
-  municipality: {
-    name: string
-    uf: string
-  }
-}
+import type { User } from '@/types/user'
 
 export interface SignInInput {
   email: string
@@ -23,5 +8,17 @@ export interface SignInInput {
 // O login devolve o usuário sem a relação `municipality`.
 export interface SignInResponse {
   token: string
-  user: Omit<AuthUser, 'municipality'>
+  user: Omit<User, 'municipality'>
+}
+
+// PATCH /users/me: o próprio usuário só muda nome e município. E-mail e perfil não mudam aqui.
+export interface UpdateMeInput {
+  name: string
+  fk_municipality_ibge_code: string
+}
+
+// PATCH /users/me/password: exige a senha atual; a nova deve ser diferente dela.
+export interface ChangePasswordInput {
+  current_password: string
+  new_password: string
 }

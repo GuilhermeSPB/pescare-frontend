@@ -1,13 +1,7 @@
-import { Button } from 'primereact/button'
-
-// O balão aparece acima do botão para não cobrir a linha de baixo.
-const ACTION_TOOLTIP_OPTIONS = { position: 'top', showDelay: 300 } as const
-
-// O botão pequeno do Lara deixa o ícone em 0.875rem (~12px), difícil de distinguir na linha.
-const ACTIONS_ICON_CLASS = '[&_.p-button-icon]:text-lg'
+import { RowActionButton, RowActions, ViewRowActionButton } from '@/components/row-action-button'
 
 interface CatalogRowActionsProps {
-  // Nome que identifica a linha nos rótulos dos botões: "Editar Tarrafa".
+  // Nome que identifica a linha nos rótulos dos botões: "Visualizar Tarrafa".
   itemLabel: string
   isActive: boolean
   // Ativação/desativação desta linha em andamento (mostra o botão carregando).
@@ -16,7 +10,7 @@ interface CatalogRowActionsProps {
   onToggleActiveClick: () => void
 }
 
-// Botões redondos só com ícone; o nome da ação aparece no balão e no aria-label.
+// Visualizar (onde também se edita) e ativar/desativar, as duas ações de toda linha de catálogo.
 export function CatalogRowActions({
   itemLabel,
   isActive,
@@ -24,32 +18,17 @@ export function CatalogRowActions({
   onEditClick,
   onToggleActiveClick,
 }: CatalogRowActionsProps) {
-  const toggleLabel = isActive ? 'Desativar' : 'Ativar'
-
   return (
-    <div className={`flex justify-center gap-1 ${ACTIONS_ICON_CLASS}`}>
-      <Button
-        icon="pi pi-pencil"
-        rounded
-        text
-        size="small"
-        tooltip="Editar"
-        tooltipOptions={ACTION_TOOLTIP_OPTIONS}
-        aria-label={`Editar ${itemLabel}`}
-        onClick={onEditClick}
-      />
-      <Button
+    <RowActions>
+      <ViewRowActionButton itemLabel={itemLabel} onClick={onEditClick} />
+      <RowActionButton
         icon={isActive ? 'pi pi-eye-slash' : 'pi pi-eye'}
-        rounded
-        text
-        size="small"
-        severity={isActive ? 'secondary' : undefined}
-        loading={isToggling}
-        tooltip={toggleLabel}
-        tooltipOptions={ACTION_TOOLTIP_OPTIONS}
-        aria-label={`${toggleLabel} ${itemLabel}`}
+        actionLabel={isActive ? 'Desativar' : 'Ativar'}
+        itemLabel={itemLabel}
+        isLoading={isToggling}
+        isSecondary={isActive}
         onClick={onToggleActiveClick}
       />
-    </div>
+    </RowActions>
   )
 }

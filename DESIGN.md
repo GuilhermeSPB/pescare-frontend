@@ -351,8 +351,10 @@ Lara buttons with the One-Step-Down primary. They are confident and plain.
 ### Status Tags
 Outlined pills that replace Lara's solid severities (below AA) and read lighter than filled tags (team preference, 2026-10-20).
 - **Style:** 13px/500 label, 2px × 10px padding, fully rounded, 1px border, white fill. No dot.
-- **Ativo:** green-600 border, green-700 text.
-- **Inativo:** slate-400 border, slate-600 text. Neutral, not red: deactivating is not an error, the record only leaves the app.
+- **Ativo / Vigente:** green-600 border, green-700 text.
+- **Inativo / Encerrado:** slate-400 border, slate-600 text. Neutral, not red: deactivating is not an error, the record only leaves the app.
+- **Rascunho:** amber-600 border, amber-700 text (5.0:1). Something saved that does not count in the app yet.
+- **Agendado:** Working Blue border, Primary Ink text (6.7:1). Active, but its validity starts on a future date.
 
 ### Cards / Containers
 - **Corner Style:** 6px, with contents clipped to the corner.
@@ -367,14 +369,35 @@ Outlined pills that replace Lara's solid severities (below AA) and read lighter 
 - **Focus:** Lara blue border plus the 0.2rem Focus Halo, and a Working Blue caret.
 - **Error / Disabled:** Invalid Border stroke with Error Red text. Server conflicts (for example, a duplicate name) land on the field and take focus. Disabled controls fall to Lara's 60% opacity.
 
+### Full-Page Form
+Use a page instead of a dialog when a form is too big for one: the period of defeso has four groups of fields (norma, period, scope, municipalities), and one of them picks hundreds of municipalities.
+- **Header:** the page header holds the H1 only, with no action.
+- **Sections:** each group of fields is a Form Section card stacked 24px apart. The card has a Surface fill, a 1px Hairline, 6px corners and Card Rest. Padding is 16px, or 24px from 640px up. Each card has a Title (18px/600) `h2` and fields 20px apart.
+- **Paired fields:** paired fields sit in two columns from 768px up, for example start/end and from/until.
+- **Repeating rows:** a group that can repeat (the windows of a period) stacks one row per item, a 40px round secondary trash button at the end of each row once there is more than one, and a small text "Adicionar …" button with a plus below. Labels number the rows ("Início da janela 2") so each field has a unique name.
+- **Bottom of the form:** a server error appears as an inline alert just above the actions, next to the button that caused it. The actions are the same footer as dialogs ("Cancelar" + primary), right-aligned. When saving can leave the record inactive, a switch with its label sits at the left of the same row ("Ativar agora", on by default).
+- **Loading and missing data:** loading shows one skeleton block per section. A missing record shows the Empty State inside a card, with a way back to the list.
+
+### Record Page (read-only, with versions)
+A record that keeps a history (the period of defeso) opens on a read-only page before any form.
+- **Header:** the H1 is the record's name, followed on the same line by its status tag and "Versão N" in Muted Ink. The actions sit on the right: outlined "Editar" and the other secondary actions, then one primary ("Nova versão", "Abrir rascunho" or "Ativar"). An old version has no actions.
+- **Tabs:** the same Lara TabView as the home page: "Período" shows the version as Form Section cards with read-only fields (label above in Ink, value in Muted Ink, never disabled inputs), and "Versões" lists the history in a table card (Versão, Portaria, Janela, Vigência, Status), with "Atual" under the current version number and "Aberta" in place of the action on the open row.
+- **Long lists:** hundreds of municipalities collapse into one row per UF ("PA · 44 municípios"), each a native disclosure with a chevron that rotates when open.
+
+### Many-Item Picker
+- **When:** a choice from thousands of items grouped by UF, here municipalities.
+- **Controls:** a UF dropdown (168px from 768px up) beside a filtered, virtual-scroll MultiSelect of that UF's items. Its "select all" checkbox selects the whole UF.
+- **Selected UFs:** below the controls, one pill per UF with selections ("PB · 66", tabular count) and a 24px round remove button. The pill of the open UF uses the Current-Place pair (Primary Wash fill, Working Blue border, Working Blue Ink text). Clicking a pill opens that UF.
+- **Copy rule:** the per-UF counts are part of the control, not a count summary.
+
 ### Segmented Status Filter
-A Lara SelectButton with three segments ("Todos (n)", "Ativos (n)", "Inativos (n)") and tabular counts. The selected segment is a Working Blue fill with white text. The filter disables, and drops its counts, while the list is loading or has failed.
+A Lara SelectButton with three segments ("Todos (n)", "Ativos (n)", "Inativos (n)") and tabular counts. The selected segment is a Working Blue fill with white text. The filter disables, and drops its counts, while the list is loading or has failed. Lists whose states are not active/inactive rename the segments. Periods of defeso have five: "Todos", "Vigentes", "Agendados", "Rascunhos", "Encerrados", and their status tag reads "Vigente", "Agendado", "Rascunho" or "Encerrado". Below 768px, up to three segments share the full width; with more, segments keep their natural width and the row scrolls sideways, so no label is cut.
 
 ### Data Table
 - Lara DataTable in a card, sorted by name by default. The sorted header takes the Current-Place pair.
 - Header cells: Ground fill, 13px/600 Muted Ink, 12px × 16px padding. Body cells: 8px × 16px padding.
 - Loading shows six skeleton rows with varied name widths rather than a spinner.
-- Row actions: round icon-only text buttons (pencil for Editar; eye-slash / eye for Desativar / Ativar), the label in a tooltip above the button (300ms delay) and in `aria-label` with the item name. Icons at 1.125rem (Lara small is 0.875rem), centered under a visible "Ações" header. 112px column.
+- Row actions: round icon-only text buttons (magnifier for Visualizar, which opens the item where it is also edited; eye-slash / eye for Desativar / Ativar; calendar-minus for Encerrar vigência), the label in a tooltip above the button (300ms delay) and in `aria-label` with the item name. Icons at 1.125rem (Lara small is 0.875rem), centered under a visible "Ações" header. 112px column.
 - Paginator: previous, page numbers, next, and "Mostrando {first}–{last} de {totalRecords}". There are no first/last arrows. The current page is a 42px Current-Place circle.
 
 ### Navigation
@@ -390,9 +413,9 @@ A Lara SelectButton with three segments ("Todos (n)", "Ativos (n)", "Inativos (n
 
 ### Sign-in
 - **Layout:** two columns from 1024px. Left: white, with one centered block (max 364px) holding the wordmark, the Display greeting "Bem-vindo de volta" 40px below it, and the form 32px below that. No card around the form. Right: a Working Blue (#2563eb) panel inset 16px with 6px corners. Below 1024px the panel is hidden and only the form shows.
-- **Porthole:** the illustration sits in a white circle (76% of the panel width, max 588px) like a boat's round window, with a 14px white ring at 15% opacity and a deep soft shadow (`0 24px 48px -24px rgb(15 23 42 / 0.45)`). The PNG's own white background becomes the circle, and the round clip hides the scene's loose edge lines.
+- **Porthole:** the illustration sits in a white circle (76% of the panel width, max 588px) like a boat's round window, with a 14px white ring at 15% opacity and a deep soft shadow (`0 24px 48px -24px rgb(15 23 42 / 0.45)`). The image fills the whole circle: a square PNG whose own white is the circle, so a browser's forced dark mode (which darkens CSS backgrounds but not images) cannot leave dark bands above and below the scene. The round clip hides the scene's loose edge lines.
 - **Waves:** three wave bands at the panel foot, white at 6% / 8% fills and a 25% stroke, stretched to the panel width.
-- **Illustration:** `src/assets/fishing-illustration.png`, chosen by the team (a fisher reeling in a fish; flat style, light blue and dark slate). Decorative only (`alt=""`, `aria-hidden`), and the panel carries no text. Origin and license are recorded in the PNG metadata; the style matches the Storyset library, whose free license requires a visible credit.
+- **Illustration:** `src/assets/fishing-illustration-porthole.png`, the original `src/assets/fishing-illustration.png` (648×432) padded to 648×648 with its own white and the same metadata, chosen by the team (a fisher reeling in a fish; flat style, light blue and dark slate). Decorative only (`alt=""`, `aria-hidden`), and the panel carries no text. Origin and license are recorded in the PNG metadata; the style matches the Storyset library, whose free license requires a visible credit.
 
 ### Page Header
 The H1 and the page's primary action, nothing else: no description or summary line under the title (team decision).

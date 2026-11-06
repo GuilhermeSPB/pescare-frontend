@@ -107,6 +107,9 @@ export function SpeciesTable({
       {...getCatalogPaginatorProps(speciesList.length, isLoading)}
       aria-busy={isLoading}
       tableStyle={{ minWidth: '18rem' }}
+      // O DataTable memoiza as células pelo `rowData`: sem isto, o botão carregando da linha
+      // em ativação (dado de fora da linha) não chega ao template.
+      cellMemo={false}
     >
       <Column field="main_name" header="Nome" sortable={!isLoading} body={renderName} />
       <Column

@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
-import { Password } from 'primereact/password'
 import { useId, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { FormField } from '@/components/form-field'
 import { InlineAlert } from '@/components/inline-alert'
+import { PasswordField } from '@/components/password-field'
 import { useSignIn } from '@/features/auth/api/sign-in'
 import type { SignInResponse } from '@/features/auth/types/auth'
 import { getSignInErrorMessage } from '@/features/auth/utils/get-sign-in-error-message'
@@ -33,7 +33,6 @@ interface SignInFormProps {
 
 export function SignInForm({ onSignedIn }: SignInFormProps) {
   const emailId = useId()
-  const passwordId = useId()
   const signInMutation = useSignIn()
   const [roleErrorMessage, setRoleErrorMessage] = useState<string>()
   const { register, control, handleSubmit, formState } = useForm<SignInFormValues>({
@@ -77,32 +76,12 @@ export function SignInForm({ onSignedIn }: SignInFormProps) {
           />
         )}
       </FormField>
-      <FormField id={passwordId} label="Senha" errorMessage={formState.errors.password?.message}>
-        {({ id, ...ariaProps }) => (
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <Password
-                {...ariaProps}
-                inputId={id}
-                inputRef={field.ref}
-                name={field.name}
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                feedback={false}
-                toggleMask
-                autoComplete="current-password"
-                invalid={Boolean(formState.errors.password)}
-                // Com toggleMask o input fica dentro de um IconField, que não ocupa a largura toda.
-                className="w-full [&>.p-icon-field]:w-full"
-                inputClassName="w-full"
-              />
-            )}
-          />
-        )}
-      </FormField>
+      <PasswordField
+        control={control}
+        name="password"
+        label="Senha"
+        autoComplete="current-password"
+      />
       <Button
         type="submit"
         label="Entrar"

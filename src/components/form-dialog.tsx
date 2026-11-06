@@ -37,7 +37,8 @@ interface FormDialogActionsProps {
   submitLabel: string
   isSubmitting: boolean
   isSubmitDisabled: boolean
-  onCancel: () => void
+  // Sem `onCancel`, só a ação principal.
+  onCancel?: () => void
 }
 
 // Rodapé do formulário: cancelar discreto à esquerda da ação principal.
@@ -49,7 +50,9 @@ export function FormDialogActions({
 }: FormDialogActionsProps) {
   return (
     <div className="flex justify-end gap-2 pt-1">
-      <Button type="button" label="Cancelar" text severity="secondary" onClick={onCancel} />
+      {onCancel && (
+        <Button type="button" label="Cancelar" text severity="secondary" onClick={onCancel} />
+      )}
       <Button
         type="submit"
         label={submitLabel}
