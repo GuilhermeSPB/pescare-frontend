@@ -9,8 +9,8 @@ import type {
 import type { ToastText } from '@/hooks/use-toast'
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
 
-const SAVE_ERROR_FALLBACK = 'Não foi possível salvar o tipo de local. Tente novamente.'
-const DUPLICATE_NAME_MESSAGE = 'Já existe um tipo de local com esse nome.'
+const SAVE_ERROR_FALLBACK = 'Não foi possível salvar o corpo d’água. Tente novamente.'
+const DUPLICATE_NAME_MESSAGE = 'Já existe um corpo d’água com esse nome.'
 
 interface FishingLocationTypeFormDialogProps {
   isVisible: boolean
@@ -43,7 +43,7 @@ export function FishingLocationTypeFormDialog({
         { id: editingItem.id, data: input },
         {
           onSuccess: (item) =>
-            onSaved(['Tipo atualizado', `As alterações em “${item.name}” foram salvas.`]),
+            onSaved(['Corpo d’água atualizado', `As alterações em “${item.name}” foram salvas.`]),
         },
       )
       return
@@ -51,14 +51,14 @@ export function FishingLocationTypeFormDialog({
 
     createMutation.mutate(input, {
       onSuccess: (item) =>
-        onSaved(['Tipo cadastrado', `“${item.name}” já aparece no app dos pescadores.`]),
+        onSaved(['Corpo d’água cadastrado', `“${item.name}” já aparece no app dos pescadores.`]),
     })
   }
 
   return (
     <FormDialog
       isVisible={isVisible}
-      title={editingItem ? 'Editar tipo de local' : 'Novo tipo de local'}
+      title={editingItem ? 'Editar corpo d’água' : 'Novo corpo d’água'}
       isSubmitting={activeMutation.isPending}
       onHide={handleDialogHide}
     >

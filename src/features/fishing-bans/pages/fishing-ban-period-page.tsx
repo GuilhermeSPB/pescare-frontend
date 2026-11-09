@@ -22,20 +22,20 @@ import {
 } from '@/features/fishing-bans/utils/fishing-ban-period-form-values'
 import { buildFishingBanPeriodOptions } from '@/features/fishing-bans/utils/fishing-ban-period-options'
 import { getPeriodLabel } from '@/features/fishing-bans/utils/fishing-ban-period-summary'
-import { toSavedPeriodToastState } from '@/features/fishing-bans/utils/saved-period-toast'
 import { getSupersededEndIsoDate } from '@/features/fishing-bans/utils/superseded-version-end'
 import type { ToastText } from '@/hooks/use-toast'
 import type { Municipality } from '@/types/municipality'
 import type { NamedCatalogItem } from '@/types/named-catalog'
 import { getApiErrorMessage } from '@/utils/api-error'
 import { formatIsoDate } from '@/utils/iso-date'
+import { toNavigationToastState } from '@/utils/navigation-toast'
 
 const SAVE_ERROR_FALLBACK = 'Não foi possível salvar o período. Tente novamente.'
 
 const PAGE_TITLES: Record<FishingBanPeriodFormMode, string> = {
   create: 'Novo período de defeso',
   edit: 'Editar período de defeso',
-  'new-version': 'Nova versão do período',
+  'new-version': 'Nova vigência do período',
 }
 
 // Altura aproximada de cada cartão do formulário enquanto carrega.
@@ -51,15 +51,19 @@ const describeSavedPeriod = (
 
   if (mode === 'edit') return ['Período atualizado', `As alterações em “${label}” foram salvas.`]
   if (mode === 'new-version' && saved.status === 'DRAFT') {
-    return ['Rascunho salvo', 'A nova versão só vale no app depois de ativada.']
+    return ['Rascunho salvo', 'A nova vigência só vale no app depois de ativada.']
   }
   if (saved.status === 'DRAFT')
     return ['Rascunho salvo', `“${label}” só vale no app depois de ativado.`]
   if (mode === 'new-version' && basePeriod) {
+    if (saved.start_in < basePeriod.start_in) {
+      return ['Vigência registrada', 'Ela entrou no histórico e a vigência atual não mudou.']
+    }
+
     const previousEnd = getSupersededEndIsoDate(basePeriod.valid_until, saved.start_in)
     return [
-      'Nova versão ativada',
-      `A versão anterior vale no app até ${formatIsoDate(previousEnd)}.`,
+      'Nova vigência ativada',
+      `A vigência anterior vale no app até ${formatIsoDate(previousEnd)}.`,
     ]
   }
 
@@ -75,16 +79,16 @@ const getUnavailableReason = (
 
   if (mode === 'edit') {
     const isEditable = period.is_current_version || period.status === 'DRAFT'
-    return isEditable ? undefined : 'Versões antigas não podem ser alteradas.'
+    return isEditable ? undefined : 'Vigências antigas não podem ser alteradas.'
   }
 
   if (!period.is_current_version || period.status !== 'ACTIVE') {
-    return 'Só a versão atual e ativa de um período pode ganhar uma nova versão.'
+    return 'Só a vigência atual e ativa de um período pode dar lugar a uma nova.'
   }
 
   return period.pending_version_id === null
     ? undefined
-    : 'Este período já tem uma nova versão em rascunho.'
+    : 'Este período já tem uma nova vigência em rascunho.'
 }
 
 function FishingBanPeriodFormSkeleton() {
@@ -141,11 +145,11 @@ export function FishingBanPeriodPage({
   const handleCancel = () =>
     periodId === undefined || mode === 'create' ? goToPeriodList() : goToPeriodView(periodId)
 
-  const handlePeriodSubmit = (input: FishingBanPeriodInput) => {
+  const handlePeriodSubmit = (input: FishingBanPeriodInput, isCorrection: boolean) => {
     // A visualização do período salvo mostra o aviso: cada tela tem o seu Toast.
     const handlePeriodSaved = (saved: FishingBanPeriod) =>
       navigate(generatePath(paths.fishingBanPeriod, { periodId: String(saved.id) }), {
-        state: toSavedPeriodToastState(describeSavedPeriod(saved, mode, basePeriod)),
+        state: toNavigationToastState(describeSavedPeriod(saved, mode, basePeriod)),
       })
 
     if (mode === 'create' || periodId === undefined) {
@@ -159,7 +163,7 @@ export function FishingBanPeriodPage({
     }
 
     updateMutation.mutate(
-      { id: periodId, data: toCorrectionInput(input) },
+      { id: periodId, data: toCorrectionInput(input, isCorrection) },
       { onSuccess: handlePeriodSaved },
     )
   }
@@ -192,7 +196,7 @@ export function FishingBanPeriodPage({
     if (unavailableReason && periodId !== undefined) {
       return (
         <FishingBanPeriodNotice
-          title={mode === 'edit' ? 'Versão só de leitura' : 'Nova versão indisponível'}
+          title={mode === 'edit' ? 'Vigência só de leitura' : 'Nova vigência indisponível'}
           description={unavailableReason}
           actionLabel="Ver o período"
           onActionClick={() => goToPeriodView(periodId)}

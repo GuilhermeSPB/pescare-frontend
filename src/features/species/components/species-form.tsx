@@ -23,7 +23,7 @@ interface SpeciesFormValues extends Omit<SpeciesFormSubmission, 'target_group_id
 const speciesFormSchema = z.object({
   main_name: z.string().trim().min(1, 'Informe o nome popular da espécie.'),
   scientific_name: z.string().trim().min(1, 'Informe o nome científico da espécie.'),
-  target_group_id: z.number({ invalid_type_error: 'Escolha o grupo-alvo da espécie.' }),
+  target_group_id: z.number({ invalid_type_error: 'Escolha o grupo de espécies.' }),
   description: z.string().trim(),
 })
 
@@ -49,7 +49,7 @@ function TargetGroupField({ control, options }: TargetGroupFieldProps) {
       name="target_group_id"
       control={control}
       render={({ field, fieldState }) => (
-        <FormField id={inputId} label="Grupo-alvo" errorMessage={fieldState.error?.message}>
+        <FormField id={inputId} label="Grupo de espécies" errorMessage={fieldState.error?.message}>
           {({ id, ...ariaProps }) => (
             <Dropdown
               {...ariaProps}
@@ -59,7 +59,7 @@ function TargetGroupField({ control, options }: TargetGroupFieldProps) {
               options={options}
               onChange={(event) => field.onChange(event.value)}
               onBlur={field.onBlur}
-              emptyMessage="Nenhum grupo-alvo ativo"
+              emptyMessage="Nenhum grupo de espécies ativo"
               invalid={Boolean(fieldState.error)}
               className="w-full"
             />

@@ -32,9 +32,9 @@ const SKELETON_NAME_WIDTHS = ['11rem', '14rem', '9rem', '12rem', '10rem', '13rem
 const SKELETON_ROWS: FishingBanPeriodRow[] = SKELETON_NAME_WIDTHS.map((_, index) => ({
   id: -(index + 1),
   fk_fishing_ban_id: 0,
-  fk_previous_period_id: null,
+  previous_version_id: null,
   status: 'ACTIVE',
-  fishing_ban: { id: 0, rule: '', fishing_ban_type: 'CONTINENTAL' },
+  fishing_ban: { id: 0, name: '', description: null, rule: '', fishing_ban_type: 'CONTINENTAL' },
   windows: [],
   start_in: '2000-01-01',
   valid_until: null,
@@ -68,12 +68,13 @@ export function FishingBanPeriodTable({
   onViewClick,
   onEndValidityClick,
 }: FishingBanPeriodTableProps) {
-  const renderRule = (period: FishingBanPeriodRow) => {
+  const renderFishingBan = (period: FishingBanPeriodRow) => {
     if (isLoading) return <Skeleton width={getSkeletonNameWidth(period)} />
 
     return (
       <div className="flex flex-col items-start gap-0.5">
-        <span className="font-medium text-ink">{period.fishing_ban.rule}</span>
+        <span className="font-medium text-ink">{period.fishing_ban.name}</span>
+        <span className="text-sm text-ink-muted">{period.fishing_ban.rule}</span>
         <span className="mt-1 sm:hidden">
           <FishingBanPeriodStatusTag status={period.display_status} />
         </span>
@@ -117,7 +118,7 @@ export function FishingBanPeriodTable({
       aria-busy={isLoading}
       tableStyle={{ minWidth: '24rem' }}
     >
-      <Column header="Portaria" body={renderRule} />
+      <Column header="Defeso" body={renderFishingBan} />
       <Column
         header="Janela"
         body={renderWindows}

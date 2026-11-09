@@ -7,8 +7,7 @@ import { FishingBanPeriodWindowsText } from '@/features/fishing-bans/components/
 import type { FishingBanPeriodRow } from '@/features/fishing-bans/utils/fishing-ban-period-status'
 import { formatValidityRange } from '@/features/fishing-bans/utils/fishing-ban-period-summary'
 
-const VERSION_COLUMN_CLASS = 'w-28 whitespace-nowrap'
-const WINDOW_COLUMN_CLASS = 'w-36 max-md:hidden'
+const WINDOW_COLUMN_CLASS = 'w-40 whitespace-nowrap'
 const VALIDITY_COLUMN_CLASS = 'w-56 whitespace-nowrap tabular-nums max-lg:hidden'
 const STATUS_COLUMN_CLASS = 'w-32'
 const ACTIONS_COLUMN_CLASS = 'w-24'
@@ -27,9 +26,9 @@ export function FishingBanPeriodVersionsTable({
   viewedPeriodId,
   onViewClick,
 }: FishingBanPeriodVersionsTableProps) {
-  const renderVersion = (version: FishingBanPeriodRow) => (
+  const renderWindows = (version: FishingBanPeriodRow) => (
     <div className="flex flex-col">
-      <span className="font-medium text-ink">Versão {version.version}</span>
+      <FishingBanPeriodWindowsText windows={version.windows} />
       {version.is_current_version && <span className="text-sm text-ink-muted">Atual</span>}
     </div>
   )
@@ -40,7 +39,7 @@ export function FishingBanPeriodVersionsTable({
     ) : (
       <RowActions>
         <ViewRowActionButton
-          itemLabel={`versão ${version.version}`}
+          itemLabel={`vigência ${formatValidityRange(version)}`}
           onClick={() => onViewClick(version)}
         />
       </RowActions>
@@ -49,20 +48,12 @@ export function FishingBanPeriodVersionsTable({
   return (
     <DataTable value={versions} dataKey="id" cellMemo={false} tableStyle={{ minWidth: '24rem' }}>
       <Column
-        header="Versão"
-        body={renderVersion}
-        headerClassName={VERSION_COLUMN_CLASS}
-        bodyClassName={VERSION_COLUMN_CLASS}
-      />
-      <Column header="Portaria" body={(version: FishingBanPeriodRow) => version.fishing_ban.rule} />
-      <Column
         header="Janela"
-        body={(version: FishingBanPeriodRow) => (
-          <FishingBanPeriodWindowsText windows={version.windows} />
-        )}
+        body={renderWindows}
         headerClassName={WINDOW_COLUMN_CLASS}
         bodyClassName={WINDOW_COLUMN_CLASS}
       />
+      <Column header="Portaria" body={(version: FishingBanPeriodRow) => version.fishing_ban.rule} />
       <Column
         header="Vigência"
         body={formatValidityRange}

@@ -61,7 +61,7 @@ export function FishingBanPeriodViewActions({
         />
       )}
       {period.pending_version_id === null ? (
-        <Button label="Nova versão" icon="pi pi-plus" onClick={onNewVersionClick} />
+        <Button label="Nova vigência" icon="pi pi-plus" onClick={onNewVersionClick} />
       ) : (
         <Button label="Abrir rascunho" icon="pi pi-file-edit" onClick={onOpenDraftClick} />
       )}

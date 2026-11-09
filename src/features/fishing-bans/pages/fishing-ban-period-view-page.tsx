@@ -18,7 +18,6 @@ import { FishingBanPeriodNotice } from '@/features/fishing-bans/components/fishi
 import { FishingBanPeriodStatusTag } from '@/features/fishing-bans/components/fishing-ban-period-status-tag'
 import { FishingBanPeriodVersionsTable } from '@/features/fishing-bans/components/fishing-ban-period-versions-table'
 import { FishingBanPeriodViewActions } from '@/features/fishing-bans/components/fishing-ban-period-view-actions'
-import { useSavedPeriodToast } from '@/features/fishing-bans/hooks/use-saved-period-toast'
 import type {
   FishingBanPeriod,
   FishingBanPeriodListItem,
@@ -30,6 +29,7 @@ import {
 } from '@/features/fishing-bans/utils/fishing-ban-period-status'
 import { getPeriodLabel } from '@/features/fishing-bans/utils/fishing-ban-period-summary'
 import { getSupersededEndIsoDate } from '@/features/fishing-bans/utils/superseded-version-end'
+import { useNavigationToast } from '@/hooks/use-navigation-toast'
 import { useToast, type ToastText } from '@/hooks/use-toast'
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
 import { formatIsoDate, localDateToIsoDate } from '@/utils/iso-date'
@@ -48,7 +48,7 @@ const describeActivation = (
 
   const previousEnd = getSupersededEndIsoDate(previousVersion.valid_until, period.start_in)
 
-  return `A versão ${previousVersion.version} deixa de valer no app depois de ${formatIsoDate(previousEnd)}.`
+  return `A vigência anterior deixa de valer no app depois de ${formatIsoDate(previousEnd)}.`
 }
 
 function FishingBanPeriodViewSkeleton() {
@@ -75,7 +75,7 @@ function VersionsTabContent({
   if (versionsQuery.isError) {
     return (
       <QueryErrorAlert
-        title="Não foi possível carregar as versões do período."
+        title="Não foi possível carregar o histórico do período."
         message={getApiErrorMessage(versionsQuery.error, 'Tente novamente em instantes.')}
         isRetrying={versionsQuery.isRefetching}
         onRetry={() => versionsQuery.refetch()}
@@ -86,7 +86,7 @@ function VersionsTabContent({
   if (!versionsQuery.data) return <Skeleton height="10rem" />
 
   return (
-    <CatalogSection label="Versões do período">
+    <CatalogSection label="Histórico do período">
       <FishingBanPeriodVersionsTable
         versions={toFishingBanPeriodRows(versionsQuery.data, localDateToIsoDate(new Date()))}
         viewedPeriodId={viewedPeriodId}
@@ -107,7 +107,7 @@ function FishingBanPeriodView({ periodId }: { periodId: number }) {
   const [isEndValidityDialogVisible, setIsEndValidityDialogVisible] = useState(false)
   const period = periodQuery.data
 
-  useSavedPeriodToast(showSuccessToast)
+  useNavigationToast(showSuccessToast)
 
   const goToPeriod = (id: number) =>
     navigate(generatePath(paths.fishingBanPeriod, { periodId: String(id) }))
@@ -116,7 +116,7 @@ function FishingBanPeriodView({ periodId }: { periodId: number }) {
 
   const handleActivateClick = (activatedPeriod: FishingBanPeriod) => {
     const previousVersion = versionsQuery.data?.find(
-      (version) => version.id === activatedPeriod.fk_previous_period_id,
+      (version) => version.id === activatedPeriod.previous_version_id,
     )
     const message = describeActivation(activatedPeriod, previousVersion)
 
@@ -152,7 +152,7 @@ function FishingBanPeriodView({ periodId }: { periodId: number }) {
   }
 
   const displayStatus = period && getPeriodDisplayStatus(period, localDateToIsoDate(new Date()))
-  const title = period?.fishing_ban.rule ?? 'Período de defeso'
+  const title = period?.fishing_ban.name ?? 'Período de defeso'
 
   return (
     <div className="flex flex-col gap-6">
@@ -160,15 +160,7 @@ function FishingBanPeriodView({ periodId }: { periodId: number }) {
       <Toast ref={toastRef} position="bottom-right" />
       <PageHeader
         title={title}
-        titleAddon={
-          period &&
-          displayStatus && (
-            <>
-              <FishingBanPeriodStatusTag status={displayStatus} />
-              <span className="text-ink-muted">Versão {period.version}</span>
-            </>
-          )
-        }
+        titleAddon={period && displayStatus && <FishingBanPeriodStatusTag status={displayStatus} />}
         actions={
           period &&
           displayStatus && (
@@ -206,7 +198,7 @@ function FishingBanPeriodView({ periodId }: { periodId: number }) {
               <FishingBanPeriodViewSkeleton />
             )}
           </TabPanel>
-          <TabPanel header="Versões">
+          <TabPanel header="Histórico">
             <VersionsTabContent
               versionsQuery={versionsQuery}
               viewedPeriodId={periodId}

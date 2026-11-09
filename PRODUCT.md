@@ -51,7 +51,7 @@ Constraints from the backend:
 - The municipalities API is read-only today (list and get by IBGE code), although managing municipalities is a panel job.
 - Some database values are still provisional (fishing record status, catch unit of measure are marked "ajustar valores reais" in the schema).
 
-Terminology (pt-BR UI): defeso, norma, período, espécie, grupo-alvo, método de pesca, tipo de local, tipo de comprador, município, alerta, pescador, administrador.
+Terminology (pt-BR UI): defeso, norma, período, espécie, grupo-alvo, método de pesca, tipo de local, tipo de comprador, município, comunicado, pescador, administrador.
 
 ## Brand Commitments
 

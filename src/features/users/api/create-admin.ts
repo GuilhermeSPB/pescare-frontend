@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { getUsersQueryOptions } from '@/features/users/api/get-users'
+import { USERS_QUERY_KEY } from '@/features/users/api/get-users'
 import type { CreateAdminInput } from '@/features/users/types/user-input'
 import { api } from '@/lib/api-client'
 import type { User } from '@/types/user'
@@ -26,6 +26,6 @@ export const useCreateAdmin = () => {
 
   return useMutation({
     mutationFn: createAdmin,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: getUsersQueryOptions().queryKey }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY }),
   })
 }

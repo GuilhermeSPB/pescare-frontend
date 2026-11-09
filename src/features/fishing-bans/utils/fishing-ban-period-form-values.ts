@@ -23,9 +23,10 @@ export interface FishingBanPeriodWindowFormValues {
   end_day_month: string
 }
 
-// Valores do formulário do período. A norma é só o texto da portaria; as janelas são digitadas
-// como "DD/MM" e a vigência escolhida no calendário. Campos de escolha começam vazios (null).
+// Valores do formulário do período. A portaria é só texto; as janelas são digitadas como "DD/MM"
+// e a vigência escolhida no calendário. Campos de escolha começam vazios (null).
 export interface FishingBanPeriodFormValues {
+  name: string
   rule: string
   fishing_ban_type: FishingBanType | null
   windows: FishingBanPeriodWindowFormValues[]
@@ -64,6 +65,7 @@ const dayMonthField = (requiredMessage: string) =>
 // Campos obrigatórios que começam null são `nullable().refine(...)`, não `z.number()`: um erro
 // de tipo interromperia o objeto e as regras do superRefine só apareceriam no segundo envio.
 const fishingBanPeriodFormObject = z.object({
+  name: z.string().trim().min(1, 'Informe o nome do defeso.'),
   rule: z.string().trim().min(1, 'Informe a portaria ou instrução normativa.'),
   fishing_ban_type: z
     .enum(['CONTINENTAL', 'MARINHO'])
@@ -106,7 +108,7 @@ const addScopeIssues = (values: FishingBanPeriodFormObject, context: z.Refinemen
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['location_type_ids'],
-      message: 'Escolha ao menos um tipo de local ou marque todos.',
+      message: 'Escolha ao menos um corpo d’água ou marque todos.',
     })
   }
 }
@@ -129,11 +131,7 @@ const addDuplicateWindowIssues = (values: FishingBanPeriodFormObject, context: z
   })
 }
 
-const addValidityIssues = (
-  values: FishingBanPeriodFormObject,
-  context: z.RefinementCtx,
-  minStartIn?: Date,
-) => {
+const addValidityIssues = (values: FishingBanPeriodFormObject, context: z.RefinementCtx) => {
   if (values.start_in && values.valid_until && values.valid_until < values.start_in) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
@@ -141,34 +139,22 @@ const addValidityIssues = (
       message: 'O fim da vigência não pode ser antes do início.',
     })
   }
-
-  if (minStartIn && values.start_in && values.start_in <= minStartIn) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['start_in'],
-      message: `A nova versão precisa começar depois de ${minStartIn.toLocaleDateString('pt-BR')}, o início da versão atual.`,
-    })
-  }
-}
-
-interface FishingBanPeriodFormRules {
-  // Na nova versão: o início da vigência da versão atual, que a nova precisa passar.
-  minStartIn?: Date
 }
 
 /**
- * Schema do formulário do período. Na nova versão, recebe o início da versão atual: a nova
- * precisa começar depois dele (o backend exige o mesmo).
+ * Schema do formulário do período. A nova versão pode começar antes da atual, para registrar uma
+ * norma antiga: é o backend que confere se ela cabe no histórico.
  *
  * @example
- * useForm({ resolver: zodResolver(buildFishingBanPeriodFormSchema({ minStartIn })) })
+ * useForm({ resolver: zodResolver(fishingBanPeriodFormSchema) })
  */
-export const buildFishingBanPeriodFormSchema = ({ minStartIn }: FishingBanPeriodFormRules = {}) =>
-  fishingBanPeriodFormObject.superRefine((values, context) => {
+export const fishingBanPeriodFormSchema = fishingBanPeriodFormObject.superRefine(
+  (values, context) => {
     addScopeIssues(values, context)
     addDuplicateWindowIssues(values, context)
-    addValidityIssues(values, context, minStartIn)
-  })
+    addValidityIssues(values, context)
+  },
+)
 
 /**
  * Valores iniciais do formulário: os do período em edição, ou vazios no cadastro.
@@ -180,6 +166,7 @@ export const buildFishingBanPeriodFormSchema = ({ minStartIn }: FishingBanPeriod
 export const toFishingBanPeriodFormValues = (
   period?: FishingBanPeriod,
 ): FishingBanPeriodFormValues => ({
+  name: period?.fishing_ban.name ?? '',
   rule: period?.fishing_ban.rule ?? '',
   fishing_ban_type: period?.fishing_ban.fishing_ban_type ?? null,
   windows: period
@@ -222,6 +209,7 @@ export const toNewVersionFormValues = (period: FishingBanPeriod): FishingBanPeri
 export const toFishingBanPeriodInput = (
   values: ValidFishingBanPeriodFormValues,
 ): FishingBanPeriodInput => ({
+  name: values.name,
   rule: values.rule,
   fishing_ban_type: values.fishing_ban_type,
   windows: values.windows.map((window) => ({
@@ -241,16 +229,18 @@ export const toFishingBanPeriodInput = (
 
 /**
  * Corpo do PUT de correção: o mesmo do POST, sem o status. A correção não ativa nem desativa;
- * ativar um rascunho tem rota própria, porque encerra a versão anterior.
+ * ativar um rascunho tem rota própria, porque encerra a versão anterior. `isCorrection` confirma
+ * que mudar uma versão já em vigor é erro de cadastro.
  *
  * @example
- * updateMutation.mutate({ id, data: toCorrectionInput(input) })
+ * updateMutation.mutate({ id, data: toCorrectionInput(input, true) })
  */
 export const toCorrectionInput = (
   input: FishingBanPeriodInput,
+  isCorrection: boolean,
 ): UpdateFishingBanPeriodInput['data'] => {
-  const correction: Partial<FishingBanPeriodInput> = { ...input }
-  delete correction.status
+  const fields: Partial<FishingBanPeriodInput> = { ...input }
+  delete fields.status
 
-  return correction
+  return isCorrection ? { ...fields, correction: true } : fields
 }

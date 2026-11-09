@@ -2,15 +2,16 @@ import type { ActiveCatalogItem } from '@/types/catalog'
 import type { FishingEnvironment } from '@/types/fishing-environment'
 import type { Municipality } from '@/types/municipality'
 
-// Ambiente da norma (CHECK do banco em `fishing_ban.fishing_ban_type`), o mesmo do tipo de local.
+// Ambiente do defeso (CHECK do banco em `fishing_ban.fishing_ban_type`), o mesmo do tipo de local.
 export type FishingBanType = FishingEnvironment
 
-// A norma do período (tabela `fishing_ban`), como a API embute na lista e no detalhe. Não tem
-// tela própria: é só a portaria digitada no período; o backend reaproveita a norma com o mesmo
-// texto ou cria uma.
+// O defeso ao longo do tempo (tabela `fishing_ban`), como a API embute na lista e no detalhe. Nome
+// e ambiente valem para todas as versões; a portaria vem da versão, e pode mudar entre elas.
 export interface FishingBanPeriodBan {
   id: number
-  // A portaria ou instrução normativa, ex.: "Portaria IBAMA Nº 48/07".
+  name: string
+  description: string | null
+  // A portaria ou instrução normativa desta versão, ex.: "Portaria IBAMA Nº 48/07".
   rule: string
   fishing_ban_type: FishingBanType
 }
@@ -41,8 +42,8 @@ export interface FishingBanPeriodWindow {
 interface FishingBanPeriodBase {
   id: number
   fk_fishing_ban_id: number
-  // A versão que esta substitui; null na primeira.
-  fk_previous_period_id: number | null
+  // A versão ativa logo antes desta; null na primeira.
+  previous_version_id: number | null
   status: FishingBanPeriodStatus
   fishing_ban: FishingBanPeriodBan
   // Ordenadas pelo início.
@@ -76,9 +77,10 @@ export interface FishingBanPeriod extends FishingBanPeriodBase {
   municipalities: Municipality[]
 }
 
-// POST (período novo ou nova versão) e PUT recebem a norma como texto (`rule` +
-// `fishing_ban_type`) e os municípios pelos códigos do IBGE.
+// POST (período novo ou nova versão) e PUT recebem a portaria como texto (`rule`) e os municípios
+// pelos códigos do IBGE. Na nova versão, a API ignora `name` e `fishing_ban_type`: são do defeso.
 export interface FishingBanPeriodInput {
+  name: string
   rule: string
   fishing_ban_type: FishingBanType
   windows: FishingBanPeriodWindow[]
@@ -96,10 +98,11 @@ export interface FishingBanPeriodInput {
 
 // PUT /fishing-ban-periods/:id corrige a versão atual ou um rascunho e aceita só os campos
 // alterados. Não há DELETE: encerrar a vigência (`valid_until`) é o jeito de tirar um período de
-// uso.
+// uso. Mudar o que uma versão já em vigor cobre exige `correction`: confirma que é erro de
+// cadastro, não mudança na norma.
 export interface UpdateFishingBanPeriodInput {
   id: number
-  data: Partial<Omit<FishingBanPeriodInput, 'status'>>
+  data: Partial<Omit<FishingBanPeriodInput, 'status'>> & { correction?: boolean }
 }
 
 // POST /fishing-ban-periods/:id/versions: a nova versão da versão atual `periodId`.

@@ -10,29 +10,55 @@ import { FISHING_BAN_TYPE_OPTIONS } from '@/features/fishing-bans/utils/fishing-
 interface FishingBanPeriodRuleFieldsProps {
   control: Control<FishingBanPeriodFormValues>
   register: UseFormRegister<FishingBanPeriodFormValues>
+  // Nome e ambiente são do defeso: a nova versão herda os dois e só informa a portaria.
+  showsFishingBanFields: boolean
 }
 
-// A norma do período é só texto: a portaria digitada e o ambiente. Não há catálogo de normas;
-// o backend reaproveita a norma com a mesma portaria ou cria uma.
-export function FishingBanPeriodRuleFields({ control, register }: FishingBanPeriodRuleFieldsProps) {
+// A portaria é só texto e pertence à versão. Não há catálogo de normas.
+export function FishingBanPeriodRuleFields({
+  control,
+  register,
+  showsFishingBanFields,
+}: FishingBanPeriodRuleFieldsProps) {
+  const nameId = useId()
   const ruleId = useId()
   const typeId = useId()
-  const { errors } = useFormState({ control, name: 'rule' })
+  const { errors } = useFormState({ control, name: ['name', 'rule'] })
+
+  const ruleField = (
+    <FormField id={ruleId} label="Portaria" errorMessage={errors.rule?.message}>
+      {(controlProps) => (
+        <InputText
+          {...controlProps}
+          {...register('rule')}
+          autoFocus={!showsFishingBanFields}
+          autoComplete="off"
+          invalid={Boolean(errors.rule)}
+          className="w-full"
+        />
+      )}
+    </FormField>
+  )
+
+  if (!showsFishingBanFields) return ruleField
 
   return (
     <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_14rem]">
-      <FormField id={ruleId} label="Portaria" errorMessage={errors.rule?.message}>
-        {(controlProps) => (
-          <InputText
-            {...controlProps}
-            {...register('rule')}
-            autoFocus
-            autoComplete="off"
-            invalid={Boolean(errors.rule)}
-            className="w-full"
-          />
-        )}
-      </FormField>
+      <div className="md:col-span-2">
+        <FormField id={nameId} label="Nome do defeso" errorMessage={errors.name?.message}>
+          {(controlProps) => (
+            <InputText
+              {...controlProps}
+              {...register('name')}
+              autoFocus
+              autoComplete="off"
+              invalid={Boolean(errors.name)}
+              className="w-full"
+            />
+          )}
+        </FormField>
+      </div>
+      {ruleField}
       <Controller
         name="fishing_ban_type"
         control={control}

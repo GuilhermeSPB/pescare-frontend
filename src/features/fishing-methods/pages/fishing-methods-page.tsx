@@ -14,7 +14,7 @@ const FISHING_METHODS_COPY: NamedCatalogScreenCopy = {
     noMatchDescription: 'Nenhum método corresponde à busca e ao filtro escolhidos.',
     emptyTitle: 'Nenhum método cadastrado',
     emptyDescription:
-      'Cadastre os métodos de pesca para o pescador escolher ao registrar uma pescaria.',
+      'Cadastre os métodos de pesca para o pescador escolher ao registrar uma pesca.',
     createLabel: 'Cadastrar método',
   },
   form: {
@@ -30,7 +30,7 @@ const FISHING_METHODS_COPY: NamedCatalogScreenCopy = {
   },
   deactivation: {
     message:
-      'O método deixa de aparecer como opção no app dos pescadores. As pescarias já registradas continuam com ele, e você pode reativá-lo quando quiser.',
+      'O método deixa de aparecer como opção no app dos pescadores. As pescas já registradas continuam com ele, e você pode reativá-lo quando quiser.',
     acceptLabel: 'Desativar método',
   },
   activatedToast: (name) => [

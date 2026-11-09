@@ -13,9 +13,7 @@ import { CreateAdminDialog } from '@/features/users/components/create-admin-dial
 import { UserRoleFilter } from '@/features/users/components/user-role-filter'
 import { UserTable } from '@/features/users/components/user-table'
 import { useUserActiveToggle } from '@/features/users/hooks/use-user-active-toggle'
-import { useUserRoleFilter } from '@/features/users/hooks/use-user-role-filter'
-import { getUserSearchText } from '@/features/users/utils/get-user-search-text'
-import { useCatalogFilter } from '@/hooks/use-catalog-filter'
+import { useUserListFilters } from '@/features/users/hooks/use-user-list-filters'
 import { useToast, type ToastText } from '@/hooks/use-toast'
 import type { Municipality } from '@/types/municipality'
 import type { User } from '@/types/user'
@@ -41,9 +39,8 @@ interface UsersPageProps {
 }
 
 export function UsersPage({ municipalitiesQuery, currentUser }: UsersPageProps) {
-  const usersQuery = useUsers()
-  const roleFilter = useUserRoleFilter(usersQuery.data ?? [])
-  const catalogFilter = useCatalogFilter(roleFilter.usersWithRole, getUserSearchText)
+  const userFilters = useUserListFilters()
+  const usersQuery = useUsers(userFilters.listFilters)
   const { toastRef, showSuccessToast, showErrorToast } = useToast()
   const [isCreateDialogVisible, setIsCreateDialogVisible] = useState(false)
 
@@ -55,11 +52,6 @@ export function UsersPage({ municipalitiesQuery, currentUser }: UsersPageProps) 
         getApiErrorMessage(error, 'Tente novamente.'),
       ),
   })
-
-  const clearFilters = () => {
-    catalogFilter.clearFilters()
-    roleFilter.setSelectedRole(null)
-  }
 
   const handleAdminSaved = (toastText: ToastText) => {
     setIsCreateDialogVisible(false)
@@ -85,19 +77,19 @@ export function UsersPage({ municipalitiesQuery, currentUser }: UsersPageProps) 
         label="Lista de usuários"
         toolbar={
           <CatalogToolbar
-            searchTerm={catalogFilter.searchTerm}
+            searchTerm={userFilters.searchTerm}
             searchLabel="Buscar usuário pelo nome ou pelo e-mail"
-            statusFilter={catalogFilter.statusFilter}
-            counts={usersQuery.isSuccess ? catalogFilter.counts : undefined}
+            statusFilter={userFilters.statusFilter}
+            isDisabled={usersQuery.isPending}
             extraFilter={
               <UserRoleFilter
-                selectedRole={roleFilter.selectedRole}
-                isDisabled={!usersQuery.isSuccess}
-                onRoleChange={roleFilter.setSelectedRole}
+                selectedRole={userFilters.selectedRole}
+                isDisabled={usersQuery.isPending}
+                onRoleChange={userFilters.setSelectedRole}
               />
             }
-            onSearchTermChange={catalogFilter.setSearchTerm}
-            onStatusFilterChange={catalogFilter.setStatusFilter}
+            onSearchTermChange={userFilters.setSearchTerm}
+            onStatusFilterChange={userFilters.setStatusFilter}
           />
         }
       >
@@ -112,14 +104,14 @@ export function UsersPage({ municipalitiesQuery, currentUser }: UsersPageProps) 
           </div>
         ) : (
           <UserTable
-            users={catalogFilter.filteredItems}
+            users={usersQuery.data ?? []}
             isLoading={usersQuery.isPending}
             currentUserId={currentUser?.id}
             emptyState={
               <CatalogEmptyState
-                hasActiveFilter={catalogFilter.hasActiveFilter || roleFilter.selectedRole !== null}
+                hasActiveFilter={userFilters.hasActiveFilter}
                 copy={USERS_EMPTY_STATE_COPY}
-                onClearFilters={clearFilters}
+                onClearFilters={userFilters.clearFilters}
                 onCreateClick={() => setIsCreateDialogVisible(true)}
               />
             }

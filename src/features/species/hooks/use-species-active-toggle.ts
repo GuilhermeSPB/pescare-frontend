@@ -4,7 +4,7 @@ import { confirmDeactivation, type DeactivationCopy } from '@/lib/confirm-deacti
 
 const SPECIES_DEACTIVATION_COPY: DeactivationCopy = {
   message:
-    'A espécie deixa de aparecer como opção no app dos pescadores. As pescarias já registradas continuam com ela, e você pode reativá-la quando quiser.',
+    'A espécie deixa de aparecer como opção no app dos pescadores. As pescas já registradas continuam com ela, e você pode reativá-la quando quiser.',
   acceptLabel: 'Desativar espécie',
 }
 

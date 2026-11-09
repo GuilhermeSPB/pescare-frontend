@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
 
 import type { RouteHandle } from '@/app/route-handle'
+import { AlertRoute } from '@/app/routes/alert'
 import { AppLayoutRoute } from '@/app/routes/app-layout'
 import { FishingBanPeriodRoute } from '@/app/routes/fishing-ban-period'
 import { HomeRoute } from '@/app/routes/home'
@@ -9,6 +10,7 @@ import { ProfileRoute } from '@/app/routes/profile'
 import { SpeciesRoute } from '@/app/routes/species'
 import { UsersRoute } from '@/app/routes/users'
 import { paths } from '@/config/paths'
+import { AlertsPage } from '@/features/alerts/pages/alerts-page'
 import { SignInPage } from '@/features/auth/pages/sign-in-page'
 import { BuyerTypesPage } from '@/features/buyer-types/pages/buyer-types-page'
 import { FishingBanPeriodViewPage } from '@/features/fishing-bans/pages/fishing-ban-period-view-page'
@@ -20,10 +22,10 @@ import { TargetGroupsPage } from '@/features/target-groups/pages/target-groups-p
 
 const homeHandle: RouteHandle = { breadcrumb: ['Início'] }
 const speciesHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Espécies'] }
-const targetGroupsHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Grupos-alvo'] }
+const targetGroupsHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Grupos de espécies'] }
 const fishingMethodsHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Métodos de pesca'] }
-const fishingLocationTypesHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Tipos de local'] }
-const buyerTypesHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Tipos de comprador'] }
+const fishingLocationTypesHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Corpos d’água'] }
+const buyerTypesHandle: RouteHandle = { breadcrumb: ['Catálogos', 'Categorias de comprador'] }
 const fishingBanPeriodsBreadcrumb = ['Regras e avisos', 'Períodos de defeso']
 const fishingBanPeriodsHandle: RouteHandle = { breadcrumb: fishingBanPeriodsBreadcrumb }
 const newFishingBanPeriodHandle: RouteHandle = {
@@ -36,8 +38,12 @@ const editFishingBanPeriodHandle: RouteHandle = {
   breadcrumb: [...fishingBanPeriodsBreadcrumb, 'Editar período'],
 }
 const newFishingBanPeriodVersionHandle: RouteHandle = {
-  breadcrumb: [...fishingBanPeriodsBreadcrumb, 'Nova versão'],
+  breadcrumb: [...fishingBanPeriodsBreadcrumb, 'Nova vigência'],
 }
+const alertsBreadcrumb = ['Regras e avisos', 'Comunicados']
+const alertsHandle: RouteHandle = { breadcrumb: alertsBreadcrumb }
+const newAlertHandle: RouteHandle = { breadcrumb: [...alertsBreadcrumb, 'Novo comunicado'] }
+const editAlertHandle: RouteHandle = { breadcrumb: [...alertsBreadcrumb, 'Editar comunicado'] }
 const profileHandle: RouteHandle = { breadcrumb: ['Meu perfil'] }
 const usersHandle: RouteHandle = { breadcrumb: ['Administração', 'Usuários'] }
 const municipalitiesHandle: RouteHandle = { breadcrumb: ['Administração', 'Municípios'] }
@@ -87,6 +93,9 @@ const router = createBrowserRouter([
         element: <FishingBanPeriodRoute mode="new-version" />,
         handle: newFishingBanPeriodVersionHandle,
       },
+      { path: paths.alerts, element: <AlertsPage />, handle: alertsHandle },
+      { path: paths.newAlert, element: <AlertRoute mode="create" />, handle: newAlertHandle },
+      { path: paths.editAlert, element: <AlertRoute mode="edit" />, handle: editAlertHandle },
       { path: paths.profile, element: <ProfileRoute />, handle: profileHandle },
       { path: paths.users, element: <UsersRoute />, handle: usersHandle },
       {

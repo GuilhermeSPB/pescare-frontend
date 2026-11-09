@@ -16,8 +16,9 @@ import type {
   FishingBanPeriod,
   FishingBanPeriodInput,
 } from '@/features/fishing-bans/types/fishing-ban-period'
+import { confirmPeriodCorrection } from '@/features/fishing-bans/utils/confirm-period-correction'
 import {
-  buildFishingBanPeriodFormSchema,
+  fishingBanPeriodFormSchema,
   toFishingBanPeriodFormValues,
   toFishingBanPeriodInput,
   toNewVersionFormValues,
@@ -25,14 +26,31 @@ import {
   type FishingBanPeriodFormValues,
 } from '@/features/fishing-bans/utils/fishing-ban-period-form-values'
 import type { FishingBanPeriodOptions } from '@/features/fishing-bans/utils/fishing-ban-period-options'
+import { getPeriodLabel } from '@/features/fishing-bans/utils/fishing-ban-period-summary'
 import type { Municipality } from '@/types/municipality'
-import { isoDateToLocalDate } from '@/utils/iso-date'
+import { localDateToIsoDate } from '@/utils/iso-date'
 
 const SUBMIT_LABELS: Record<FishingBanPeriodFormMode, string> = {
   create: 'Cadastrar período',
   edit: 'Salvar alterações',
-  'new-version': 'Criar versão',
+  'new-version': 'Criar vigência',
 }
+
+// O que a versão cobre. Numa versão já em vigor, mudar um destes reescreve o passado; nome,
+// ambiente, observação e fim da vigência não.
+const VERSION_SCOPE_FIELDS: (keyof FishingBanPeriodFormValues)[] = [
+  'rule',
+  'windows',
+  'start_in',
+  'applies_to_all_species',
+  'species_ids',
+  'applies_to_all_location_types',
+  'location_type_ids',
+  'municipalities',
+]
+
+const hasVersionStarted = (period: FishingBanPeriod) =>
+  period.status === 'ACTIVE' && period.start_in <= localDateToIsoDate(new Date())
 
 const getDefaultValues = (mode: FishingBanPeriodFormMode, basePeriod?: FishingBanPeriod) =>
   mode === 'new-version' && basePeriod
@@ -65,7 +83,8 @@ interface FishingBanPeriodFormProps {
   municipalities: Municipality[]
   isSubmitting: boolean
   formServerError?: string
-  onSubmit: (input: FishingBanPeriodInput) => void
+  // `isCorrection`: o admin confirmou que mudar uma versão em vigor é erro de cadastro.
+  onSubmit: (input: FishingBanPeriodInput, isCorrection: boolean) => void
   onCancel: () => void
 }
 
@@ -80,12 +99,11 @@ export function FishingBanPeriodForm({
   onCancel,
 }: FishingBanPeriodFormProps) {
   const observationId = useId()
-  const minStartIn =
-    mode === 'new-version' && basePeriod ? isoDateToLocalDate(basePeriod.start_in) : undefined
   const { register, control, handleSubmit, formState } = useForm<FishingBanPeriodFormValues>({
-    resolver: zodResolver(buildFishingBanPeriodFormSchema({ minStartIn })),
+    resolver: zodResolver(fishingBanPeriodFormSchema),
     defaultValues: getDefaultValues(mode, basePeriod),
   })
+  const { dirtyFields } = formState
 
   const handleValidSubmit = ({
     fishing_ban_type,
@@ -94,7 +112,22 @@ export function FishingBanPeriodForm({
   }: FishingBanPeriodFormValues) => {
     // O schema já recusou ambiente e início vazios; a checagem só estreita o tipo.
     if (fishing_ban_type === null || start_in === null) return
-    onSubmit(toFishingBanPeriodInput({ ...values, fishing_ban_type, start_in }))
+    const input = toFishingBanPeriodInput({ ...values, fishing_ban_type, start_in })
+    const rewritesPast =
+      mode === 'edit' &&
+      basePeriod !== undefined &&
+      hasVersionStarted(basePeriod) &&
+      VERSION_SCOPE_FIELDS.some((field) => dirtyFields[field])
+
+    if (rewritesPast) {
+      confirmPeriodCorrection({
+        periodLabel: getPeriodLabel(basePeriod),
+        onAccept: () => onSubmit(input, true),
+      })
+      return
+    }
+
+    onSubmit(input, false)
   }
 
   // Editando sem mudar nada, salvar não faria nada: o botão espera uma alteração.
@@ -103,7 +136,11 @@ export function FishingBanPeriodForm({
   return (
     <form noValidate onSubmit={handleSubmit(handleValidSubmit)} className="flex flex-col gap-6">
       <FormSection title="Norma">
-        <FishingBanPeriodRuleFields control={control} register={register} />
+        <FishingBanPeriodRuleFields
+          control={control}
+          register={register}
+          showsFishingBanFields={mode !== 'new-version'}
+        />
       </FormSection>
       <FormSection title="Período">
         <FishingBanPeriodDateFields control={control} />
@@ -122,10 +159,10 @@ export function FishingBanPeriodForm({
           control={control}
           allFieldName="applies_to_all_location_types"
           idsFieldName="location_type_ids"
-          allLabel="Todos os tipos de local"
-          listLabel="Tipos de local"
+          allLabel="Todos os corpos d’água"
+          listLabel="Corpos d’água"
           options={options.locationTypes}
-          emptyMessage="Nenhum tipo de local ativo"
+          emptyMessage="Nenhum corpo d’água ativo"
         />
         <FormField id={observationId} label="Observação (opcional)">
           {(controlProps) => (

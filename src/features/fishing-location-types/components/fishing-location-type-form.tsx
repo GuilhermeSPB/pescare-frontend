@@ -22,7 +22,7 @@ interface FishingLocationTypeFormValues {
 }
 
 const fishingLocationTypeFormSchema = z.object({
-  name: z.string().trim().min(1, 'Informe o nome do tipo de local.'),
+  name: z.string().trim().min(1, 'Informe o nome do corpo d’água.'),
   environment: z
     .enum(['CONTINENTAL', 'MARINHO'])
     .nullable()
@@ -111,7 +111,7 @@ export function FishingLocationTypeForm({
   return (
     <form noValidate onSubmit={handleSubmit(handleValidSubmit)} className="flex flex-col gap-5">
       {formServerError && <InlineAlert message={formServerError} />}
-      <FormField id={nameId} label="Nome do tipo" errorMessage={errors.name?.message}>
+      <FormField id={nameId} label="Nome do corpo d’água" errorMessage={errors.name?.message}>
         {(controlProps) => (
           <InputText
             {...controlProps}
@@ -125,7 +125,7 @@ export function FishingLocationTypeForm({
       </FormField>
       <EnvironmentField control={control} />
       <FormDialogActions
-        submitLabel={editingItem ? 'Salvar alterações' : 'Cadastrar tipo'}
+        submitLabel={editingItem ? 'Salvar alterações' : 'Cadastrar corpo d’água'}
         isSubmitting={isSubmitting}
         isSubmitDisabled={isUnchangedEdit}
         onCancel={onCancel}

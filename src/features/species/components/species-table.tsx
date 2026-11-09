@@ -113,7 +113,7 @@ export function SpeciesTable({
     >
       <Column field="main_name" header="Nome" sortable={!isLoading} body={renderName} />
       <Column
-        header="Grupo-alvo"
+        header="Grupo de espécies"
         body={renderTargetGroup}
         headerClassName={TARGET_GROUP_COLUMN_CLASS}
         bodyClassName={TARGET_GROUP_COLUMN_CLASS}

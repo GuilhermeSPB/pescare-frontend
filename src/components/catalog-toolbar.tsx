@@ -13,6 +13,8 @@ interface CatalogToolbarProps {
   statusFilter: ActiveStatusFilter
   // Sem contagens (lista carregando ou com erro), o filtro mostra só os rótulos e fica bloqueado.
   counts?: ActiveStatusCounts
+  // Lista buscada no servidor, sem contagens: quem usa diz quando bloquear.
+  isDisabled?: boolean
   // Rótulos de outra situação de dois estados.
   statusLabels?: ActiveStatusLabels
   // Filtro próprio do catálogo, antes do status: ex.: o perfil na lista de usuários.
@@ -37,13 +39,12 @@ export function CatalogToolbar({
   searchLabel,
   statusFilter,
   counts,
+  isDisabled = counts === undefined,
   statusLabels = DEFAULT_STATUS_LABELS,
   extraFilter,
   onSearchTermChange,
   onStatusFilterChange,
 }: CatalogToolbarProps) {
-  const isDisabled = counts === undefined
-
   return (
     <FilterToolbar
       search={

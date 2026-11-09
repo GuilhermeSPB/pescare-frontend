@@ -15,7 +15,7 @@ const describeSpecies = (period: FishingBanPeriod) =>
 
 const describeLocationTypes = (period: FishingBanPeriod) =>
   period.applies_to_all_location_types
-    ? 'Todos os tipos de local'
+    ? 'Todos os corpos d’água'
     : period.location_types.map((locationType) => locationType.name).join(', ')
 
 // Uma versão do período só para leitura, nos mesmos cartões do formulário.
@@ -23,7 +23,8 @@ export function FishingBanPeriodDetails({ period }: { period: FishingBanPeriod }
   return (
     <div className="flex flex-col gap-6">
       <FormSection title="Norma">
-        <dl className="grid gap-5 md:grid-cols-[minmax(0,1fr)_14rem]">
+        <dl className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_14rem]">
+          <ReadOnlyField label="Nome do defeso" value={period.fishing_ban.name} />
           <ReadOnlyField label="Portaria" value={period.fishing_ban.rule} />
           <ReadOnlyField
             label="Ambiente"
@@ -47,7 +48,7 @@ export function FishingBanPeriodDetails({ period }: { period: FishingBanPeriod }
       <FormSection title="Abrangência">
         <dl className="grid gap-5">
           <ReadOnlyField label="Espécies" value={describeSpecies(period)} />
-          <ReadOnlyField label="Tipos de local" value={describeLocationTypes(period)} />
+          <ReadOnlyField label="Corpos d’água" value={describeLocationTypes(period)} />
           {period.observation && <ReadOnlyField label="Observação" value={period.observation} />}
         </dl>
       </FormSection>

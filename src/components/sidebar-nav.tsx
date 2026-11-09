@@ -10,8 +10,10 @@ interface SidebarNavProps {
   onNavigate?: () => void
 }
 
+// Rótulo longo ("Categorias de comprador") quebra em duas linhas em vez de estourar a barra lateral;
+// o ícone não encolhe.
 const ITEM_BASE_CLASS =
-  'flex h-10 items-center gap-3 rounded-md px-3 whitespace-nowrap transition-colors'
+  'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-left transition-colors [&>i]:shrink-0'
 
 function SidebarNavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
   // Seção ainda sem tela: fica no menu para mostrar o mapa do painel, mas apagada.

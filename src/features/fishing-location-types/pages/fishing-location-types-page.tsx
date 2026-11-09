@@ -20,28 +20,27 @@ import { getApiErrorMessage } from '@/utils/api-error'
 import { getFishingEnvironmentLabel } from '@/utils/fishing-environment'
 
 const EMPTY_STATE_COPY: CatalogEmptyStateCopy = {
-  noMatchTitle: 'Nenhum tipo encontrado',
-  noMatchDescription: 'Nenhum tipo corresponde à busca e ao filtro escolhidos.',
-  emptyTitle: 'Nenhum tipo cadastrado',
-  emptyDescription:
-    'Cadastre os tipos de local para o pescador escolher ao registrar uma pescaria.',
-  createLabel: 'Cadastrar tipo',
+  noMatchTitle: 'Nenhum corpo d’água encontrado',
+  noMatchDescription: 'Nenhum corpo d’água corresponde à busca e ao filtro escolhidos.',
+  emptyTitle: 'Nenhum corpo d’água cadastrado',
+  emptyDescription: 'Cadastre os corpos d’água para o pescador escolher ao registrar uma pesca.',
+  createLabel: 'Cadastrar corpo d’água',
 }
 
 const DEACTIVATION_COPY: DeactivationCopy = {
   message:
-    'O tipo deixa de aparecer como opção no app dos pescadores. As pescarias já registradas continuam com ele, e você pode reativá-lo quando quiser.',
-  acceptLabel: 'Desativar tipo',
+    'O corpo d’água deixa de aparecer como opção no app dos pescadores. As pescas já registradas continuam com ele, e você pode reativá-lo quando quiser.',
+  acceptLabel: 'Desativar corpo d’água',
 }
 
 const describeActiveToggle = (name: string, isActive: boolean): ToastText =>
   isActive
-    ? ['Tipo ativado', `“${name}” voltou a aparecer no app dos pescadores.`]
-    : ['Tipo desativado', `“${name}” não aparece mais no app dos pescadores.`]
+    ? ['Corpo d’água ativado', `“${name}” voltou a aparecer no app dos pescadores.`]
+    : ['Corpo d’água desativado', `“${name}” não aparece mais no app dos pescadores.`]
 
 const getItemName = (item: FishingLocationType) => item.name
 
-// Tipo cadastrado antes do campo existir aparece sem ambiente, até alguém editar.
+// Corpo cadastrado antes do campo existir aparece sem ambiente, até alguém editar.
 const renderEnvironment = (item: FishingLocationType) =>
   item.environment ? (
     getFishingEnvironmentLabel(item.environment)
@@ -54,7 +53,7 @@ interface FormDialogState {
   editingItem?: FishingLocationType
 }
 
-// Tipos de local têm um campo além do nome (o ambiente de pesca, que o REAP pede), por isso não
+// Corpos d’água têm um campo além do nome (o ambiente de pesca, que o REAP pede), por isso não
 // usam a NamedCatalogScreen: a tela é montada aqui com as mesmas peças de catálogo.
 export function FishingLocationTypesPage() {
   const itemsQuery = useFishingLocationTypes()
@@ -86,18 +85,18 @@ export function FishingLocationTypesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <title>Tipos de local · Pescare Admin</title>
+      <title>Corpos d’água · Pescare Admin</title>
       <Toast ref={toastRef} position="bottom-right" />
       <PageHeader
-        title="Tipos de local"
-        actions={<Button label="Novo tipo" icon="pi pi-plus" onClick={handleCreateClick} />}
+        title="Corpos d’água"
+        actions={<Button label="Novo corpo d’água" icon="pi pi-plus" onClick={handleCreateClick} />}
       />
       <CatalogSection
-        label="Lista de tipos de local"
+        label="Lista de corpos d’água"
         toolbar={
           <CatalogToolbar
             searchTerm={catalogFilter.searchTerm}
-            searchLabel="Buscar tipo pelo nome"
+            searchLabel="Buscar corpo d’água pelo nome"
             statusFilter={catalogFilter.statusFilter}
             counts={itemsQuery.isSuccess ? catalogFilter.counts : undefined}
             onSearchTermChange={catalogFilter.setSearchTerm}
@@ -108,7 +107,7 @@ export function FishingLocationTypesPage() {
         {itemsQuery.isError ? (
           <div className="p-4">
             <QueryErrorAlert
-              title="Não foi possível carregar os tipos de local."
+              title="Não foi possível carregar os corpos d’água."
               message={getApiErrorMessage(itemsQuery.error, 'Tente novamente em instantes.')}
               isRetrying={itemsQuery.isRefetching}
               onRetry={() => itemsQuery.refetch()}

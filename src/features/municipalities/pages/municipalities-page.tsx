@@ -5,7 +5,7 @@ import { CatalogEmptyState, type CatalogEmptyStateCopy } from '@/components/cata
 import { CatalogSection } from '@/components/catalog-section'
 import { PageHeader } from '@/components/page-header'
 import { QueryErrorAlert } from '@/components/query-error-alert'
-import { useMunicipalities } from '@/features/municipalities/api/get-municipalities'
+import { useSearchMunicipalities } from '@/features/municipalities/api/search-municipalities'
 import { MunicipalityNameDialog } from '@/features/municipalities/components/municipality-name-dialog'
 import { MunicipalityTable } from '@/features/municipalities/components/municipality-table'
 import { MunicipalityToolbar } from '@/features/municipalities/components/municipality-toolbar'
@@ -13,6 +13,7 @@ import { useMunicipalityFilter } from '@/features/municipalities/hooks/use-munic
 import { useToast, type ToastText } from '@/hooks/use-toast'
 import type { Municipality } from '@/types/municipality'
 import { getApiErrorMessage } from '@/utils/api-error'
+import { BRAZILIAN_UFS } from '@/utils/brazilian-ufs'
 
 // Sem cadastro: os municípios vêm da carga do IBGE no backend.
 const MUNICIPALITIES_EMPTY_STATE_COPY: CatalogEmptyStateCopy = {
@@ -22,17 +23,14 @@ const MUNICIPALITIES_EMPTY_STATE_COPY: CatalogEmptyStateCopy = {
   emptyDescription: 'Os municípios vêm da carga do IBGE feita no servidor.',
 }
 
-// Referência estável enquanto carrega: o filtro memoiza pela lista.
-const NO_MUNICIPALITIES: Municipality[] = []
-
 interface NameDialogState {
   isVisible: boolean
   editingMunicipality?: Municipality
 }
 
 export function MunicipalitiesPage() {
-  const municipalitiesQuery = useMunicipalities()
-  const municipalityFilter = useMunicipalityFilter(municipalitiesQuery.data ?? NO_MUNICIPALITIES)
+  const municipalityFilter = useMunicipalityFilter()
+  const municipalitiesQuery = useSearchMunicipalities(municipalityFilter.searchFilters)
   const { toastRef, showSuccessToast } = useToast()
   const [nameDialog, setNameDialog] = useState<NameDialogState>({ isVisible: false })
 
@@ -56,8 +54,8 @@ export function MunicipalitiesPage() {
           <MunicipalityToolbar
             searchTerm={municipalityFilter.searchTerm}
             selectedUf={municipalityFilter.selectedUf}
-            ufOptions={municipalityFilter.ufOptions}
-            isDisabled={!municipalitiesQuery.isSuccess}
+            ufOptions={BRAZILIAN_UFS}
+            isDisabled={municipalitiesQuery.isPending}
             onSearchTermChange={municipalityFilter.setSearchTerm}
             onUfChange={municipalityFilter.setSelectedUf}
           />
@@ -77,7 +75,7 @@ export function MunicipalitiesPage() {
           </div>
         ) : (
           <MunicipalityTable
-            municipalities={municipalityFilter.filteredMunicipalities}
+            municipalities={municipalitiesQuery.data ?? []}
             isLoading={municipalitiesQuery.isPending}
             emptyState={
               <CatalogEmptyState

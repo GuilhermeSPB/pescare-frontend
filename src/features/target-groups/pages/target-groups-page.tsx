@@ -4,26 +4,26 @@ import { useTargetGroups } from '@/features/target-groups/api/get-target-groups'
 import { useUpdateTargetGroup } from '@/features/target-groups/api/update-target-group'
 
 const TARGET_GROUPS_COPY: NamedCatalogScreenCopy = {
-  title: 'Grupos-alvo',
+  title: 'Grupos de espécies',
   createLabel: 'Novo grupo',
-  listLabel: 'Lista de grupos-alvo',
+  listLabel: 'Lista de grupos de espécies',
   searchLabel: 'Buscar grupo pelo nome',
-  loadErrorTitle: 'Não foi possível carregar os grupos-alvo.',
+  loadErrorTitle: 'Não foi possível carregar os grupos de espécies.',
   emptyState: {
     noMatchTitle: 'Nenhum grupo encontrado',
     noMatchDescription: 'Nenhum grupo corresponde à busca e ao filtro escolhidos.',
     emptyTitle: 'Nenhum grupo cadastrado',
-    emptyDescription: 'Cadastre os grupos-alvo para classificar as espécies.',
+    emptyDescription: 'Cadastre grupos para classificar as espécies.',
     createLabel: 'Cadastrar grupo',
   },
   form: {
-    createTitle: 'Novo grupo-alvo',
-    editTitle: 'Editar grupo-alvo',
+    createTitle: 'Novo grupo de espécies',
+    editTitle: 'Editar grupo de espécies',
     fieldLabel: 'Nome do grupo',
-    requiredMessage: 'Informe o nome do grupo-alvo.',
+    requiredMessage: 'Informe o nome do grupo de espécies.',
     createSubmitLabel: 'Cadastrar grupo',
-    duplicateNameMessage: 'Já existe um grupo-alvo com esse nome.',
-    saveErrorFallback: 'Não foi possível salvar o grupo-alvo. Tente novamente.',
+    duplicateNameMessage: 'Já existe um grupo de espécies com esse nome.',
+    saveErrorFallback: 'Não foi possível salvar o grupo de espécies. Tente novamente.',
     createdToast: (name) => ['Grupo cadastrado', `“${name}” já aparece no app dos pescadores.`],
     renamedSummary: 'Grupo atualizado',
   },
@@ -47,7 +47,7 @@ export function TargetGroupsPage() {
 
   return (
     <>
-      <title>Grupos-alvo · Pescare Admin</title>
+      <title>Grupos de espécies · Pescare Admin</title>
       <NamedCatalogScreen
         copy={TARGET_GROUPS_COPY}
         itemsQuery={targetGroupsQuery}

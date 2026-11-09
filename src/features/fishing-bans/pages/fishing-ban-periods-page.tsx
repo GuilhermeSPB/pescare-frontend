@@ -15,13 +15,13 @@ import { useFishingBanPeriods } from '@/features/fishing-bans/api/get-fishing-ba
 import { EndFishingBanPeriodDialog } from '@/features/fishing-bans/components/end-fishing-ban-period-dialog'
 import { FishingBanPeriodTable } from '@/features/fishing-bans/components/fishing-ban-period-table'
 import { useFishingBanPeriodFilter } from '@/features/fishing-bans/hooks/use-fishing-ban-period-filter'
-import { useSavedPeriodToast } from '@/features/fishing-bans/hooks/use-saved-period-toast'
 import {
   PERIOD_STATUS_FILTER_LABELS,
   toFishingBanPeriodRows,
   type FishingBanPeriodRow,
   type PeriodStatusFilter,
 } from '@/features/fishing-bans/utils/fishing-ban-period-status'
+import { useNavigationToast } from '@/hooks/use-navigation-toast'
 import { useToast, type ToastText } from '@/hooks/use-toast'
 import { getApiErrorMessage } from '@/utils/api-error'
 import { localDateToIsoDate } from '@/utils/iso-date'
@@ -60,7 +60,7 @@ export function FishingBanPeriodsPage() {
     isVisible: false,
   })
 
-  useSavedPeriodToast(showSuccessToast)
+  useNavigationToast(showSuccessToast)
 
   const handleCreateClick = () => navigate(paths.newFishingBanPeriod)
   const handleViewClick = (period: FishingBanPeriodRow) =>

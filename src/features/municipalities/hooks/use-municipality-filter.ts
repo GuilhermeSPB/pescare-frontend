@@ -1,46 +1,29 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
-import type { Municipality } from '@/types/municipality'
-import { normalizeForSearch } from '@/utils/filter-catalog'
-import { listMunicipalityUfs } from '@/utils/municipalities-by-uf'
-
-// O termo já vem normalizado; o código IBGE só tem dígitos e não precisa de normalização.
-const matchesMunicipalitySearch = (municipality: Municipality, normalizedTerm: string) =>
-  municipality.ibge_code.includes(normalizedTerm) ||
-  normalizeForSearch(municipality.name).includes(normalizedTerm)
-
-const filterMunicipalities = (
-  municipalities: Municipality[],
-  selectedUf: string | null,
-  normalizedTerm: string,
-) =>
-  municipalities.filter(
-    (municipality) =>
-      (selectedUf === null || municipality.uf === selectedUf) &&
-      matchesMunicipalitySearch(municipality, normalizedTerm),
-  )
+import type { MunicipalitySearchFilters } from '@/features/municipalities/types/municipality-search-filters'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { SERVER_SEARCH_DEBOUNCE_MS } from '@/utils/server-search'
 
 /**
- * Busca (pelo nome ou pelo código IBGE) e filtro por UF da lista de municípios, com o resultado
- * já filtrado. Memoizado: a lista tem mais de 5.500 municípios.
+ * Estado da busca (pelo nome ou pelo código IBGE) e do filtro por UF. A filtragem é no servidor:
+ * o hook só monta os filtros da consulta, com o termo já estabilizado.
  *
  * @example
- * const { filteredMunicipalities, selectedUf, setSelectedUf } = useMunicipalityFilter(municipalities)
+ * const { searchFilters, selectedUf, setSelectedUf } = useMunicipalityFilter()
  */
-export const useMunicipalityFilter = (municipalities: Municipality[]) => {
+export const useMunicipalityFilter = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUf, setSelectedUf] = useState<string | null>(null)
-  const normalizedTerm = normalizeForSearch(searchTerm)
-
-  const ufOptions = useMemo(() => listMunicipalityUfs(municipalities), [municipalities])
-  const filteredMunicipalities = useMemo(
-    () => filterMunicipalities(municipalities, selectedUf, normalizedTerm),
-    [municipalities, selectedUf, normalizedTerm],
-  )
+  const debouncedSearchTerm = useDebouncedValue(searchTerm.trim(), SERVER_SEARCH_DEBOUNCE_MS)
 
   const clearFilters = () => {
     setSearchTerm('')
     setSelectedUf(null)
+  }
+
+  const searchFilters: MunicipalitySearchFilters = {
+    ...(debouncedSearchTerm !== '' && { search: debouncedSearchTerm }),
+    ...(selectedUf !== null && { uf: selectedUf }),
   }
 
   return {
@@ -49,8 +32,7 @@ export const useMunicipalityFilter = (municipalities: Municipality[]) => {
     selectedUf,
     setSelectedUf,
     clearFilters,
-    ufOptions,
-    filteredMunicipalities,
-    hasActiveFilter: normalizedTerm !== '' || selectedUf !== null,
+    searchFilters,
+    hasActiveFilter: searchTerm.trim() !== '' || selectedUf !== null,
   }
 }

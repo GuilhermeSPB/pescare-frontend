@@ -1,5 +1,4 @@
 import type { FishingBanPeriodListItem } from '@/features/fishing-bans/types/fishing-ban-period'
-import { formatPeriodWindow } from '@/features/fishing-bans/utils/period-window'
 import { formatIsoDate } from '@/utils/iso-date'
 
 // Quantos nomes cabem na célula antes do "+N".
@@ -9,24 +8,13 @@ const UFS_SHOWN = 4
 const compareNames = (first: string, second: string) => first.localeCompare(second, 'pt-BR')
 
 /**
- * Nome curto de um período, para botões, avisos e confirmações: portaria e primeira janela, com
- * quantas mais houver. Uma portaria tem vários períodos; a janela os diferencia.
+ * Nome curto de um período, para botões, avisos e confirmações: o nome do defeso, que é único.
  *
  * @example
- * getPeriodLabel(period) // 'Instrução Normativa Nº 34/04 · 01/12 – 31/05'
- * getPeriodLabel(period) // 'Portaria SAP/MAPA nº 325/2020 · 30/12 – 04/01 +4'
+ * getPeriodLabel(period) // 'Defeso do pirarucu'
  */
-export const getPeriodLabel = (
-  period: Pick<FishingBanPeriodListItem, 'fishing_ban' | 'windows'>,
-): string => {
-  const [firstWindow] = period.windows
-  if (!firstWindow) return period.fishing_ban.rule
-
-  const extraCount = period.windows.length - 1
-  const windowText = formatPeriodWindow(firstWindow.start_date, firstWindow.end_date)
-
-  return `${period.fishing_ban.rule} · ${windowText}${extraCount > 0 ? ` +${extraCount}` : ''}`
-}
+export const getPeriodLabel = (period: Pick<FishingBanPeriodListItem, 'fishing_ban'>): string =>
+  period.fishing_ban.name
 
 /**
  * Vigência de uma versão numa linha: início e fim, ou só o início quando não tem data para acabar.
